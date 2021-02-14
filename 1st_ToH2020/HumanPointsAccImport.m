@@ -1,7 +1,7 @@
 %%実験結果をimportして図示する。
 %始めに入力信号に応じて場合分け
+% 呼び出される側にclearは入れない
 
-clear
 close all
 
 Fs = 1e4;%サンプル周波数
@@ -26,9 +26,13 @@ labels_z = zeros(num_points,1);
 labels_sum = zeros(num_points,1);
 radius_coef = 60;%描画のため加速度(g)に掛け合わせる係数
 
-%種類によって変更
-area = 0 ; %前面側面：0、背面：1
-% area = 1 ;
+% 種類によって変更
+area = 0 ; %前面：0
+% area = 1 %側面：1
+% area = 2 %背面：2
+
+RMS_column = zeros(1,4);% RMS値格納用
+
 
 % % 0.5,1,1.5G の大きさ
 % figure;
@@ -59,7 +63,9 @@ for i = 1:numFiles
         Mx{i,6+3*k} = harmfreq(1,1);
         %         Mx{i,7+3*k} = rms((Mx{i,2}(:,1+k))) - 0.01 ;
         Mx{i,7+3*k} = rms((Mx{i,2}(:,1+k))) ;
+        RMS_column(i,k+1) = Mx{i,7+3*k}; %  RMS値格納用行列
         Mx{i,8+3*k} = thd_db;
+        
     end
     %入力電圧の周波数を取得し記録（harmfreqで高調波が分かる、その始めの値を利用)
     [thd_db, harmpow, harmfreq] = thd(Mx{i,1}(:,4), Fs, nharm);
@@ -71,6 +77,7 @@ for i = 1:numFiles
     xyz = 0;
     % 3軸のRMS値
     Mx{i,9+3*k} =Mx{i,7+3*0} + Mx{i,7+3*1} + Mx{i,7+3*2};
+    RMS_column(i,4) = Mx{i,9+3*k};
     
     % timetable を各列ごとに追加
     Mx{i,3} = timetable(Mx{i,2}(:,1), Mx{i,2}(:,2), Mx{i,2}(:,3),'SampleRate',Fs);
@@ -141,7 +148,16 @@ end
 
 %% 各軸ごとの加速度の大きさと数値を図示
 % x,y,z,sumを一度の処理で描画する
-radius_coef = 30;%描画のため加速度(g)に掛け合わせる係数
+%描画のため加速度(g)に掛け合わせる係数
+
+if area == 0
+    radius_coef = 15;%前面
+elseif area == 1
+    radius_coef = 25;%側面
+elseif area ==2
+    radius_coef = 25;%側面
+end
+   
 
 % for axis = 0:3
 %     if axis == 2
@@ -177,9 +193,25 @@ radius_coef = 30;%描画のため加速度(g)に掛け合わせる係数
     %          'FontSize', 30, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
     %     imshow(dispFrame)
     %
-    %     % 前面用フォント
+    %     % 前面用フォント 適宜調整
+    
+ % Annotationの大きさなどを決定
+if area == 0 %前面
     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-        'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
+    'FontSize', 10, 'LineWidth', 2,'TextBoxOpacity',0, 'color', 'magenta','TextColor', 'white');
+elseif area == 1 %側面
+    dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+    'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
+elseif area ==2 %背面
+    dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+    'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
+end
+   
+    
+%     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+%         'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
+    
+
     imshow(dispFrame,'Border','tight') % border tight を入れることで余白なしに
     
     % 前面用フォント
@@ -200,7 +232,7 @@ radius_coef = 30;%描画のため加速度(g)に掛け合わせる係数
     %     Sum, x, y, zの表示
     %annotationテキストのy座用
     
-    if area == 0 %前面 or 側面
+    if or(area == 0,area==1) %前面 or 側面
                 x_base = 220;
                 y_base = 20;
                 y_offset = 30;

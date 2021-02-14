@@ -1,9 +1,10 @@
 %%HumanPointsAccImportを各パラメータごとに実行。各計測フォルダのルートで実施（例：7.2前面2）
+clear
 
 for cd_times = 1:5
     %各試行ごとに、改正先のフォルダへ移動
     if cd_times == 1 
-        cd '20Hz_05W';
+        cd '20Hz_0W';
     elseif cd_times == 2
         cd '20Hz_1W';
     elseif cd_times == 3
@@ -16,3 +17,4 @@ for cd_times = 1:5
     HumanPointsAccImport
     cd .. 
 end
+

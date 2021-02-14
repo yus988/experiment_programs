@@ -20,9 +20,9 @@ Input_Vol = 0;
 filename = 'test';
 
 %% •ª—Þ‚·‚éƒtƒHƒ‹ƒ_‚Ìì¬
-if ~isfolder('20Hz_05W')
-    mkdir 20Hz_05W
-    cd '20Hz_05W';
+if ~isfolder('20Hz_0W')
+    mkdir 20Hz_0W
+    cd '20Hz_0W';
     fopen('20Hz-05W.txt','w');
     cd ..
 end
@@ -98,8 +98,8 @@ for i = 1:numFiles
 %     end
     
     if Input_Hz > 19 && Input_Hz <21
-        if Input_Vol > 0.050 && Input_Vol <  0.065 && isfolder('20Hz_05W')
-             copyfile(list(i).name, '20Hz_05W')
+        if Input_Vol > 0.050 && Input_Vol <  0.065 && isfolder('20Hz_0W')
+             copyfile(list(i).name, '20Hz_0W')
 %              copyfile(png(i).name, '20Hz_05W')
          elseif    Input_Vol > 0.07 && Input_Vol < 0.09 && isfolder('20Hz_1W')            
              copyfile(list(i).name, '20Hz_1W')

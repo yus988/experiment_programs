@@ -63,6 +63,7 @@ radiusOfMeans = rms(:,1) * radius_coef; %平均値を円の大きさに変換
 radiusOfSTDEV = rms(:,2) * radius_coef; %標準偏差円の大きさに変換
 radiusOfCV = rms(:,3)* radius_coef; %変動係数の大きさに変換
 
+
 %% マーカー（緑）の位置に実験結果を図示
 
 % ラベル描画関連
