@@ -18,3 +18,4 @@ for cd_times = 1:5
     cd .. 
 end
 
+close
