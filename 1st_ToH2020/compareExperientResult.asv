@@ -137,6 +137,71 @@ lineStyle = '-';
 %     end
 %%%------------------------------------------------------------------
 
+%%% hapbeat & haptuator
+% for cd_times = 1:9      
+%     %各試行ごとに、改正先のフォルダへ移動
+%     if cd_times == 1 
+%         cd 'vp2-20Hz-2W';
+%         circleLineColor = '#FFA500'; %
+%         V2G = 0.800; %MMA7361L 1.5Gモード
+%         lineStyle = '--'; %円の線形状
+%         text(40,annotationTextTopPos+ PosOffset,'Vp2','Color',circleLineColor,'FontSize', annotationTextFontSize);
+%         text(40,50,'20Hz-1W(Vp2=2W)','Color','black','FontSize',20);
+%     elseif cd_times == 2
+%         continue
+% %         cd 'haptuator-20Hz-1W';
+% %         V2G = 0.206; %MMA7361L 6Gモード
+% %         circleLineColor = '#32CD32'; %
+% %         text(40,annotationTextTopPos + 2*PosOffset,'Haptuator','Color',circleLineColor,'FontSize', annotationTextFontSize);
+%     elseif cd_times == 3
+%         cd 'Hapbeat-20Hz-1W';
+%         lineStyle = '-'; %円の線形状
+%         V2G = 0.206; %MMA7361L 6Gモード
+%         circleLineColor = '#FFA500'; %
+%         text(40,annotationTextTopPos + 2*PosOffset,'Hapbeat','Color',circleLineColor,'FontSize', annotationTextFontSize);
+%     elseif cd_times == 4
+%         cd 'vp2-80Hz-1W';
+% %         figure;
+% %         imshow(Underlayer_img);
+%         circleLineColor = '#0000FF'; %青色
+%         V2G = 0.800; %MMA7361L 1.5Gモード
+%         text(40,annotationTextTopPos+ PosOffset,'Vp2','Color',circleLineColor,'FontSize', annotationTextFontSize);
+%         text(40,50,'80Hz-1W','Color','black','FontSize',20);
+%         lineStyle = '--'; %円の線形状
+%     elseif cd_times == 5
+%         continue
+% %         cd 'haptuator-80Hz-1W';
+% %         circleLineColor = '#32CD32'; %緑
+% %         V2G = 0.206; %MMA7361L 6Gモード
+% %         text(40,annotationTextTopPos + 2*PosOffset,'Haptuator','Color',circleLineColor,'FontSize', annotationTextFontSize);
+%     elseif cd_times == 6
+%         cd 'Hapbeat-80Hz-1W';
+%         lineStyle = '-'; %円の線形状
+%         circleLineColor = '#0000FF'; %赤
+%         V2G = 0.206; %MMA7361L 6Gモード
+%         text(40,annotationTextTopPos + 2*PosOffset,'Hapbeat','Color',circleLineColor,'FontSize', annotationTextFontSize);
+%     elseif cd_times == 7
+%         cd 'vp2-140Hz-1W';
+%         lineStyle = '--'; %円の線形状
+% %         figure;
+% %         imshow(Underlayer_img);
+%         circleLineColor = '#FF00FF';
+%         V2G = 0.800; %MMA7361L 1.5Gモード
+%         text(40,annotationTextTopPos+ PosOffset,'Vp2','Color',circleLineColor,'FontSize', annotationTextFontSize);
+%         text(40,50,'140Hz-1W','Color','black','FontSize',20);
+%     elseif cd_times == 8
+%         continue
+% %         cd 'haptuator-140Hz-1W';
+% %         circleLineColor = '#32CD32'; %緑
+% %         V2G = 0.206; %MMA7361L 6Gモード
+% %         text(40,annotationTextTopPos + 2*PosOffset,'Haptuator','Color',circleLineColor,'FontSize', annotationTextFontSize);        
+%     elseif cd_times == 9
+%         cd 'Hapbeat-140Hz-1W';
+%         lineStyle = '-'; %円の線形状
+%         circleLineColor = '#FF00FF'; 
+%         V2G = 0.206; %MMA7361L 6Gモード
+%         text(40,annotationTextTopPos + 2*PosOffset,'Hapbeat','Color',circleLineColor,'FontSize', annotationTextFontSize);        
+%     end
 
 %%%------------------------------------------------------------------
 %Hapbeat比較用 (amp, freq)
@@ -282,8 +347,6 @@ for cd_times = 1:6
     cd .. ;
 end
 
-%% NG
-
 % for cd_times = 1:9      
 %     %各試行ごとに、改正先のフォルダへ移動
 %     if cd_times == 1 
@@ -348,74 +411,3 @@ end
 %         V2G = 0.206; %MMA7361L 6Gモード
 %         text(40,annotationTextTopPos + 2*PosOffset,'Hapbeat','Color',circleLineColor,'FontSize', annotationTextFontSize);        
 %     end
-
-
-
-
-
-%%% hapbeat & haptuator
-% for cd_times = 1:9      
-%     %各試行ごとに、改正先のフォルダへ移動
-%     if cd_times == 1 
-%         cd 'vp2-20Hz-2W';
-%         circleLineColor = '#FFA500'; %
-%         V2G = 0.800; %MMA7361L 1.5Gモード
-%         lineStyle = '--'; %円の線形状
-%         text(40,annotationTextTopPos+ PosOffset,'Vp2','Color',circleLineColor,'FontSize', annotationTextFontSize);
-%         text(40,50,'20Hz-1W(Vp2=2W)','Color','black','FontSize',20);
-%     elseif cd_times == 2
-%         continue
-% %         cd 'haptuator-20Hz-1W';
-% %         V2G = 0.206; %MMA7361L 6Gモード
-% %         circleLineColor = '#32CD32'; %
-% %         text(40,annotationTextTopPos + 2*PosOffset,'Haptuator','Color',circleLineColor,'FontSize', annotationTextFontSize);
-%     elseif cd_times == 3
-%         cd 'Hapbeat-20Hz-1W';
-%         lineStyle = '-'; %円の線形状
-%         V2G = 0.206; %MMA7361L 6Gモード
-%         circleLineColor = '#FFA500'; %
-%         text(40,annotationTextTopPos + 2*PosOffset,'Hapbeat','Color',circleLineColor,'FontSize', annotationTextFontSize);
-%     elseif cd_times == 4
-%         cd 'vp2-80Hz-1W';
-% %         figure;
-% %         imshow(Underlayer_img);
-%         circleLineColor = '#0000FF'; %青色
-%         V2G = 0.800; %MMA7361L 1.5Gモード
-%         text(40,annotationTextTopPos+ PosOffset,'Vp2','Color',circleLineColor,'FontSize', annotationTextFontSize);
-%         text(40,50,'80Hz-1W','Color','black','FontSize',20);
-%         lineStyle = '--'; %円の線形状
-%     elseif cd_times == 5
-%         continue
-% %         cd 'haptuator-80Hz-1W';
-% %         circleLineColor = '#32CD32'; %緑
-% %         V2G = 0.206; %MMA7361L 6Gモード
-% %         text(40,annotationTextTopPos + 2*PosOffset,'Haptuator','Color',circleLineColor,'FontSize', annotationTextFontSize);
-%     elseif cd_times == 6
-%         cd 'Hapbeat-80Hz-1W';
-%         lineStyle = '-'; %円の線形状
-%         circleLineColor = '#0000FF'; %赤
-%         V2G = 0.206; %MMA7361L 6Gモード
-%         text(40,annotationTextTopPos + 2*PosOffset,'Hapbeat','Color',circleLineColor,'FontSize', annotationTextFontSize);
-%     elseif cd_times == 7
-%         cd 'vp2-140Hz-1W';
-%         lineStyle = '--'; %円の線形状
-% %         figure;
-% %         imshow(Underlayer_img);
-%         circleLineColor = '#FF00FF';
-%         V2G = 0.800; %MMA7361L 1.5Gモード
-%         text(40,annotationTextTopPos+ PosOffset,'Vp2','Color',circleLineColor,'FontSize', annotationTextFontSize);
-%         text(40,50,'140Hz-1W','Color','black','FontSize',20);
-%     elseif cd_times == 8
-%         continue
-% %         cd 'haptuator-140Hz-1W';
-% %         circleLineColor = '#32CD32'; %緑
-% %         V2G = 0.206; %MMA7361L 6Gモード
-% %         text(40,annotationTextTopPos + 2*PosOffset,'Haptuator','Color',circleLineColor,'FontSize', annotationTextFontSize);        
-%     elseif cd_times == 9
-%         cd 'Hapbeat-140Hz-1W';
-%         lineStyle = '-'; %円の線形状
-%         circleLineColor = '#FF00FF'; 
-%         V2G = 0.206; %MMA7361L 6Gモード
-%         text(40,annotationTextTopPos + 2*PosOffset,'Hapbeat','Color',circleLineColor,'FontSize', annotationTextFontSize);        
-%     end
-

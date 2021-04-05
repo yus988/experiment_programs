@@ -39,7 +39,6 @@ target_row = 15;  %Sum
 % target_row = 10; %Yg
 % target_row = 13; %Zg
 
-
 % % 0.5,1,1.5G の大きさ
 % figure;
 % base_x = 300;
@@ -51,7 +50,6 @@ target_row = 15;  %Sum
 % viscircles([base_x  base_y], 0.5 * radius_coef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
 % viscircles([base_x  base_y + pos_offset * 0.75], 1 * radius_coef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
 % viscircles([base_x  base_y + pos_offset * 2], 1.5 * ra
-
 
 %% csvデータのインポートおよびラベル用データ生成
 for i = 1:numFiles
@@ -106,7 +104,6 @@ for k=0:2
     Mx{i+1,8+3*k} = strcat('ch', num2str(k+1), 'THD');
 end
 Mx{i+1,15} = '3軸RMS値';
-
 %% マーカー（緑）の位置に実験結果を図示
 
 % ラベル描画関連
@@ -198,15 +195,16 @@ end
     %     % 前面用フォント 適宜調整
     
  % Annotationの大きさなどを決定
+ annoColor = 'blue';
 if area == 0 %前面
     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-    'FontSize', 10, 'LineWidth', 2,'TextBoxOpacity',0, 'color', 'magenta','TextColor', 'white');
+    'FontSize', 10, 'LineWidth', 2,'TextBoxOpacity',0, 'color', 'magenta','TextColor', annoColor);
 elseif area == 1 %側面
     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-    'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
+    'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', annoColor);
 elseif area ==2 %背面
     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-    'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
+    'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', annoColor);
 end
    
     
@@ -317,7 +315,7 @@ for axis = 0:2
         i = i + size(c_Annotation{m,1},1);
     end
     
-    viscircles(centerOfAnnotation, radiulOfCircles,'Color',circleLineColor,'EnhanceVisibility',false,'LineStyle','-','LineWidth',2);
+    viscircles(centerOfAnnotation, radiulOfCircles,'Color',circleLineColor,'EnhanceVisibility',false,'LineStyle','-','LineWidth',1);
 end
 
 % text(x_base,y_base,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);

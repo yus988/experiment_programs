@@ -1,5 +1,5 @@
 %%実験結果をimportして図示する。平均と標準偏差が入ったcsvファイルがあるフォルダ中で実行
-% 必要データを回数ごとに1,2,3...のようにフォルダを作り、データを格納。ルート。
+% 必要データを回数ごとに1,2,3...のようにフォルダを作り、データを格納。1,2,3フォルダの1階層上で実施
 %　
 
 clear
@@ -8,7 +8,10 @@ RMS_Cell = cell(1,1);% RMSをx,y,z,sumでインポートするためのセル
 Mean_Cell = cell(1,1);% RMS_cell から平均取得
 Std_Cell = cell(1,1);% RMS_cell から標準誤差取得
 cd_times = 1; % ディレクトリを動いた回数
+actType =  dir('*.txt'); % vp2.txt or hapbeat.txt
 
+
+%% 生データを集計
 for whole_times = 1:3
     if whole_times == 1
         cd '1';
@@ -17,26 +20,45 @@ for whole_times = 1:3
     elseif whole_times == 3
         cd '3';
     end
+    Sort_by_Input2080140_0512
     
-    for cd_times = 1:5
-        %各試行ごとに、改正先のフォルダへ移動
-        if cd_times == 1 
-            cd '20Hz_0W';
-        elseif cd_times == 2
-            cd '20Hz_1W';
-        elseif cd_times == 3
-            cd '20Hz_2W';
-        elseif cd_times == 4
-            cd '80Hz_1W';
-         elseif cd_times == 5
-            cd '140Hz_1W';
+    if(isempty(actType)) %Hapbeatの場合
+        for cd_times = 1:5
+            %各試行ごとに、改正先のフォルダへ移動
+            if cd_times == 1 
+                cd '20Hz_0W';
+            elseif cd_times == 2
+                cd '20Hz_1W';
+            elseif cd_times == 3
+                cd '20Hz_2W';
+            elseif cd_times == 4
+                cd '80Hz_1W';
+             elseif cd_times == 5
+                cd '140Hz_1W';
+            end
+            HumanPointsAccImport % 取り込み処理
+            RMS_Cell{cd_times, whole_times} = RMS_column; %RMS値を格納
+            cd .. 
         end
-        HumanPointsAccImport % 取り込み処理
-        RMS_Cell{cd_times,whole_times} = RMS_column; %RMS値を格納
-        cd .. 
+    else %Vp2の場合
+        for cd_times = 1:3
+            %各試行ごとに、改正先のフォルダへ移動
+            if cd_times == 1 
+                cd '20Hz_2W';
+            elseif cd_times == 2
+                cd '80Hz_2W';
+            elseif cd_times == 3
+                cd '140Hz_2W';
+            end
+            HumanPointsAccImport % 取り込み処理
+            RMS_Cell{cd_times, whole_times} = RMS_column; %RMS値を格納
+            cd .. 
+        end
     end
     cd ..
 end
+
+save;
 
 %% RMSから平均（Mean）を算出
 
@@ -64,6 +86,8 @@ for i = 1:size(RMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
         end
     end
 end
+
+% 平均値出すだけならここまで
 
 
 %% マーカー（緑）の位置を配置
@@ -103,23 +127,43 @@ end
             end
             i = i + size(c_Annotation{m,1},1);
     end
-%% グラフ描画
+
+%% 分類するフォルダの作成
+if ~isfolder('X')
+    mkdir 'X';
+end
+if ~isfolder('Y')
+    mkdir 'Y';
+end
+if ~isfolder('Z')
+    mkdir 'Z';
+end
+if ~isfolder('Sum')
+    mkdir 'Sum';
+end
+
+%% グラフ描画（matがある場合はここからでOK）
 
 % セットアップ
 pointsNum = size(list,1); %測定点の数。listから読み込み
-if strcmp(dir('*.txt').name , 'front.txt')
-    txtPosX = 20;
-    txtPosY = 30;%
-    posOffset = 15;%改行量
-elseif strcmp(dir('*.txt').name , 'side.txt')
-    txtPosX = 20;
-    txtPosY = 30;%
-    posOffset = 15;%改行量
-elseif strcmp(dir('*.txt').name , 'back.txt')
-    txtPosX = 20;
-    txtPosY = 30;%
-    posOffset = 15;%改行量
-end
+% if strcmp(dir('*.txt').name , 'front.txt')
+%     txtPosX = 20;
+%     txtPosY = 30;%
+%     posOffset = 15;%改行量
+% elseif strcmp(dir('*.txt').name , 'side.txt')
+%     txtPosX = 20;
+%     txtPosY = 30;%
+%     posOffset = 15;%改行量
+% elseif strcmp(dir('*.txt').name , 'back.txt')
+%     txtPosX = 20;
+%     txtPosY = 30;%
+%     posOffset = 15;%改行量
+% end
+
+txtPosX = 20;
+txtPosY = 30;%
+posOffset = 15;%改行量
+
 labels = zeros(pointsNum,1);
 
 radius_coef = 15;%描画のため加速度(g)に掛け合わせる係数
@@ -129,18 +173,31 @@ annotationTextFontSize = 8; %図内注釈の文字の大きさ
 % 描画
 % size(RMS_Cell,1)
 for i = 1:5 % 信号の種類ごと
-     if i == 1 
-         type = '20Hz-05W';
-     elseif i == 2
-         type = '20Hz-1W';
-     elseif i == 3
-         type = '20Hz-2W';
-     elseif i == 4
-         type = '80Hz-1W';
-     elseif i == 5
-         type = '140Hz-1W';
-     end
     
+    if(isempty(actType)) %Hapbeatの場合
+         if i == 1 
+             type = '20Hz-0W';
+         elseif i == 2
+             type = '20Hz-1W';
+         elseif i == 3
+             type = '20Hz-2W';
+         elseif i == 4
+             type = '80Hz-1W';
+         elseif i == 5
+             type = '140Hz-1W';
+         end
+    else %Vp2の場合
+         if i == 1 
+             type = '20Hz-2W';
+         elseif i == 2
+             type = '80Hz-2W';
+         elseif i == 3
+             type = '140Hz-2W';
+         elseif i == 4
+             break;
+         end
+    end
+
     for j = 1:4 % x,y,z,sum
          %提示信号によって切り分け
          if j == 1 
@@ -156,6 +213,7 @@ for i = 1:5 % 信号の種類ごと
              axis = 'Sum';
              circleLineColor = 'magenta'; % z = オレンジ
          end
+        
         
         title = strcat(type,'-',axis);
         close
@@ -188,7 +246,9 @@ for i = 1:5 % 信号の種類ごと
         text(Annotation(:,1) -10, Annotation(:,2) + posOffset*1.8 ,strcat('±',num2str(round(tmpStd,3))),'Color','#FFFFEF','FontSize',annotationTextFontSize);
         
         % 画像保存
+        cd (axis)
         saveas(gcf,strcat(title,'.png'));
+        cd ..
     end
 end
 

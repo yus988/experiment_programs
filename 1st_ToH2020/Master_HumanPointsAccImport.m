@@ -1,5 +1,6 @@
 %%HumanPointsAccImportを各パラメータごとに実行。各計測フォルダのルートで実施（例：7.2前面2）
 clear
+% Sort_by_Input2080140_0512
 
 for cd_times = 1:5
     %各試行ごとに、改正先のフォルダへ移動
@@ -15,6 +16,7 @@ for cd_times = 1:5
         cd '140Hz_1W';
     end
     HumanPointsAccImport
+    save;
     cd .. 
 end
 
