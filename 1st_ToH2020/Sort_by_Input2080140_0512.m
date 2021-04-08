@@ -13,7 +13,7 @@ nharm = 6;%thdの高調波数
 %（できれば1-の連番にして一々ファイル名を変更しないでも良いようにしたい
 list = dir('*.csv');
 png = dir('*.png');
-type =  dir('*.txt'); % vp2.txt or hapbeat.txt
+actType =  dir('*.txt'); % vp2.txt or hapbeat.txt
 numFiles = length(list);
 Mx = cell(numFiles,2);
 Input_Hz = 0;
@@ -22,8 +22,8 @@ filename = 'test';
 
 %% 分類するフォルダの作成
 
-
-if(isempty(type)) %Hapeatの場合
+% actuator type がvp.txt でないか、txtが無い場合
+if ~strcmp(actType.name,'vp.txt') %Hapeatの場合
 
     if ~isfolder('20Hz_0W')
         mkdir 20Hz_0W
@@ -108,7 +108,7 @@ for i = 1:numFiles
     % 入力電圧と周波数でファイルを仕訳
     %Vp2仕分け用
 %     if strcmp(type.name,'vp2.txt')
-    if isempty(type)     % Hapbeat    
+    if ~strcmp(actType.name,'vp.txt')    % Hapbeat    
         if Input_Hz > 19 && Input_Hz <21
             if Input_Vol > 0.050 && Input_Vol <  0.065 && isfolder('20Hz_0W')
                 copyfile(list(i).name, '20Hz_0W')

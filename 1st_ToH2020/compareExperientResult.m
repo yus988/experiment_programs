@@ -135,6 +135,7 @@ lineStyle = '-';
 %         V2G = 0.206; %MMA7361L 6Gモード
 % %         text(40,annotationTextTopPos + 3*PosOffset,'Hapbeat','Color',circleLineColor,'FontSize', annotationTextFontSize);        
 %     end
+
 %%%------------------------------------------------------------------
 
 
