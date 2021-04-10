@@ -13,6 +13,7 @@ actType =  dir('*.txt'); % vp2.txt or hapbeat.txt
 max_loops = 3; % 何回ループさせるか。
 max_loops = 5; % 何回ループさせるか。
 
+isHapbeat = isempty(actType) || ~strcmp(actType.name,'vp.txt'); %Hapeatの場合
 
 %% 生データを集計
 for whole_times = 1:max_loops
@@ -27,9 +28,9 @@ for whole_times = 1:max_loops
     elseif whole_times == 5
         cd '5';
     end
-    Sort_by_Input2080140_0512
+%     Sort_by_Input2080140_0512
     
-    if(~strcmp(actType.name,'vp.txt')) %Hapbeatの場合
+    if isHapbeat %Hapbeatの場合
         for cd_times = 1:5
             %各試行ごとに、改正先のフォルダへ移動
             if cd_times == 1 
@@ -184,7 +185,7 @@ annotationTextFontSize = 8; %図内注釈の文字の大きさ
 % size(RMS_Cell,1)
 for i = 1:5 % 信号の種類ごと
     
-    if(~strcmp(actType.name,'vp.txt')) %Hapbeatの場合
+    if isHapbeat %Hapbeatの場合
          if i == 1 
              type = '20Hz-0W';
          elseif i == 2

@@ -20,11 +20,12 @@ Input_Hz = 0;
 Input_Vol = 0;
 filename = 'test';
 
+isHapbeat = isempty(actType) || ~strcmp(actType.name,'vp.txt'); %Hapeatの場合
 %% 分類するフォルダの作成
 
-% actuator type がvp.txt でないか、txtが無い場合
-if ~strcmp(actType.name,'vp.txt') %Hapeatの場合
 
+% actuator type がvp.txt でないか、txtが無い場合
+if  isHapbeat %Hapeatの場合
     if ~isfolder('20Hz_0W')
         mkdir 20Hz_0W
         cd '20Hz_0W';
@@ -108,7 +109,7 @@ for i = 1:numFiles
     % 入力電圧と周波数でファイルを仕訳
     %Vp2仕分け用
 %     if strcmp(type.name,'vp2.txt')
-    if ~strcmp(actType.name,'vp.txt')    % Hapbeat    
+    if isHapbeat % Hapbeat    
         if Input_Hz > 19 && Input_Hz <21
             if Input_Vol > 0.050 && Input_Vol <  0.065 && isfolder('20Hz_0W')
                 copyfile(list(i).name, '20Hz_0W')

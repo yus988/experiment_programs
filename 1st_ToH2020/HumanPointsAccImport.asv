@@ -177,7 +177,7 @@ end
 
     Annotation = zeros(num_points, 3); %c_AnnotationのFloat行列, [マーカーのx座標, y座用, 加速度の大きさr]
     %viscirclesを使うため、重心と円半径をそれぞれ別の行列に代入
-    i = 0; %　c_Annotationの数だけ参照行をシフトさせるため
+    i = 0; %　c_Annotation
     for m = 1:size(c_Annotation,1)
         for k = 1: size(c_Annotation{m,1},1)
             Annotation(k+i, 1) = c_Annotation{m,1}(k, 1);
