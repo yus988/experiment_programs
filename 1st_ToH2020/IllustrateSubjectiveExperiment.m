@@ -48,11 +48,30 @@ for i=1:15
     end
     
     for j = 1:2
+%         if j == 1 
+%           fileName = 'y_mean.csv';
+%         elseif j== 2
+%           fileName = 't_mean.csv';
+%         end
+          saveDir = 'meanResult';
+%         
+%         if j == 1 
+%           fileName = 'y_count1.csv';
+%         elseif j== 2
+%           fileName = 't_count1.csv';
+%         end
+%         saveDir = 'count1Result';
+
+%         
         if j == 1 
-            fileName = 'y_mean.csv';
+          fileName = 'y_count2.csv';
         elseif j== 2
-            fileName = 't_mean.csv';
+          fileName = 't_count2.csv';
         end
+%         saveDir = 'count2Result';
+
+        radius_coef = 10;%描画のため加速度(g)に掛け合わせる係数
+          
         Mx{i,j} =readmatrix(fileName,'range',range);
     end
     
@@ -151,7 +170,11 @@ for clothType = 1:2
         x_base = 0;
         y_base = 20;
         title = strcat(cloth,areaName,'-',freq,'-',power);
-        text(x_base,y_base,title,'Color','white','FontSize',12);        
+        text(x_base,y_base,title,'Color','white','FontSize',12);   
+        
+%       画像保存
+        cd count1Result
         saveas(gcf,strcat(title,'.png'));
+        cd ..
     end
 end

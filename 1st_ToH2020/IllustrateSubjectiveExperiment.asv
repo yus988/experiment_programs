@@ -10,9 +10,9 @@ radiulOfCircles = zeros(1, 1);
 radius_coef = 30;%描画のため加速度(g)に掛け合わせる係数
 
 % ラベル描画関連
-imgCell{1,1} = dir('./frontImg/*.png');
-imgCell{2,1} = dir('./backImg/*.png');
-imgCell{3,1} = dir('./sideImg/*.png');
+imgCell{1,1} = dir('./T-frontImg/*.png');
+imgCell{2,1} = dir('./T-backImg/*.png');
+imgCell{3,1} = dir('./T-sideImg/*.png');
 
 for i=1:15
     if i == 1
@@ -47,20 +47,31 @@ for i=1:15
         range = '308:320'; %rangeSide140hz1w
     end
     
-    if rem(1,3) == 1 
-        imgPath = './frontImg/';
-    elseif rem(1,3) == 2
-        imgPath = './backImg/';
-    elseif rem(1,3) == 2
-        imgPath = './sideImg/';
-    end
-    
     for j = 1:2
+%         if j == 1 
+%           fileName = 'y_mean.csv';
+%         elseif j== 2
+%           fileName = 't_mean.csv';
+%         end
+          saveDir = 'meanResult';
+%         
+%         if j == 1 
+%           fileName = 'y_count1.csv';
+%         elseif j== 2
+%           fileName = 't_count1.csv';
+%         end
+%         saveDir = 'count1Result';
+
+%         
         if j == 1 
-            fileName = 'y_mean.csv';
+          fileName = 'y_count2.csv';
         elseif j== 2
-            fileName = 't_mean.csv';
+          fileName = 't_count2.csv';
         end
+%         saveDir = 'count2Result';
+
+        radius_coef = 10;%描画のため加速度(g)に掛け合わせる係数
+          
         Mx{i,j} =readmatrix(fileName,'range',range);
     end
     
@@ -86,7 +97,7 @@ for clothType = 1:2
             imgPath = strcat('./',cloth ,'backImg/');
             targetImgCell = 2;
             areaName = 'back';
-        elseif rem(loop,3) == 2
+        elseif rem(loop,3) == 0
             imgPath = strcat('./',cloth ,'sideImg/');
             targetImgCell = 3;
             areaName = 'side';
@@ -159,7 +170,11 @@ for clothType = 1:2
         x_base = 0;
         y_base = 20;
         title = strcat(cloth,areaName,'-',freq,'-',power);
-        text(x_base,y_base,title,'Color','white','FontSize',12);        
+        text(x_base,y_base,title,'Color','white','FontSize',12);   
+        
+%       画像保存
+        cd count1Result
         saveas(gcf,strcat(title,'.png'));
+        cd ..
     end
 end
