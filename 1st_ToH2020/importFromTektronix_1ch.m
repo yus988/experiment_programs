@@ -1,3 +1,4 @@
+%% 定量実験, 
 clear
 Fs = 1e4;%サンプル周波数
 % Fs = 10e3;%サンプル周波数
@@ -13,9 +14,16 @@ list = dir('*.csv');
 numFiles = length(list);
 Mx = cell(numFiles,2);
 
-%%
+%% 
+cd 
 % データのインポートおよびラベル用データ生成
 for i = 1:numFiles
+    
+    if i <= 13
+        Fs = 1e3;
+    else
+        Fs = 1e4;
+    end
     % 2chの場合 (pngで確認）
 %     Mx{i,1}= csvread(list(i).name,21,1,[21,1,10020,2]);
     % 1chの場合 (pngで確認）
@@ -27,22 +35,55 @@ for i = 1:numFiles
 %     Mx{i,2}(:,2) = ( Mx{i,1}(:,2) - mean(Mx{i,1}(:,2)) );
     Mx{i,2}(:,1) = ( Mx{i,1}(:,1) - mean(Mx{i,1}(:,1)) );
 
-        for k = 0:1
-            [thd_db, harmpow, harmfreq] = thd(Mx{i,2}(:,1+k), Fs, nharm);
-            %thd(Mx{8,2}(:,1), Fs, nharm); % 個別のTHDを見たいとき
-            Mx{i,6+3*k} = harmfreq(1,1);
-            Mx{i,7+3*k} = rms((Mx{i,2}(:,1+k))) ;
-            Mx{i,8+3*k} = thd_db;
-        end
-        
+    k = 0;
+        [thd_db, harmpow, harmfreq] = thd(Mx{i,2}(:,1+k), Fs, nharm);
+        %thd(Mx{8,2}(:,1), Fs, nharm); % 個別のTHDを見たいとき
+        Mx{i,6+3*k} = harmfreq(1,1);
+        Mx{i,7+3*k} = rms((Mx{i,2}(:,1+k))) ;
+        Mx{i,8+3*k} = thd_db;
 % *2* sqrt(2);　%Vppにするための処理（rmsにかける）
 %     Mx{i,4} = peak2rms(Mx{i,2}(:,1));
 %     Mx{i,5} = peak2rms(Mx{i,2}(:,2));
 
     % timetable を各列ごとに追加
-    Mx{i,3} = timetable(Mx{i,2}(:,1), Mx{i,2}(:,2),'SampleRate',Fs);
+    Mx{i,3} = timetable(Mx{i,2}(:,1),'SampleRate',Fs);
     Mx{i,3}.Properties.VariableNames{'Var1'}='Out' ;
-    Mx{i,3}.Properties.VariableNames{'Var2'}='In' ;
+%     Mx{i,3}.Properties.VariableNames{'Var2'}='In' ;
+end
+
+cd ..
+
+for i = 1:numFiles
+    if i <= 13
+        Fs = 1e3;
+    else
+        Fs = 1e4;
+    end
+    % 2chの場合 (pngで確認）
+%     Mx{i,1}= csvread(list(i).name,21,1,[21,1,10020,2]);
+    % 1chの場合 (pngで確認）
+    Mx{i,1}= csvread(list(i).name,21,1,[21,1,10020,1]);
+
+    % オフセット除去（すべての要素から平均値を引く）
+%     Mx{i,2}(:,1) = ( Mx{i,1}(:,1) - mean(Mx{i,1}(:,1)) ) / V2G6;
+%     Mx{i,2}(:,1) = ( Mx{i,1}(:,1) - mean(Mx{i,1}(:,1)) )  / V2N;
+%     Mx{i,2}(:,2) = ( Mx{i,1}(:,2) - mean(Mx{i,1}(:,2)) );
+    Mx{i,2}(:,1) = ( Mx{i,1}(:,1) - mean(Mx{i,1}(:,1)) );
+
+    k = 0;
+        [thd_db, harmpow, harmfreq] = thd(Mx{i,2}(:,1+k), Fs, nharm);
+        %thd(Mx{8,2}(:,1), Fs, nharm); % 個別のTHDを見たいとき
+        Mx{i,6+3*k} = harmfreq(1,1);
+        Mx{i,7+3*k} = rms((Mx{i,2}(:,1+k))) ;
+        Mx{i,8+3*k} = thd_db;
+% *2* sqrt(2);　%Vppにするための処理（rmsにかける）
+%     Mx{i,4} = peak2rms(Mx{i,2}(:,1));
+%     Mx{i,5} = peak2rms(Mx{i,2}(:,2));
+
+    % timetable を各列ごとに追加
+    Mx{i,3} = timetable(Mx{i,2}(:,1),'SampleRate',Fs);
+    Mx{i,3}.Properties.VariableNames{'Var1'}='Out' ;
+%     Mx{i,3}.Properties.VariableNames{'Var2'}='In' ;
 end
 
 %% 行末に説明を追加
@@ -57,15 +98,12 @@ for k=0:2
     Mx{i+1,8+3*k} = strcat('ch', num2str(k+1), 'THD');
 end
 
-%%
+%% 周波数応答（ゲイン）の表示
 Plot_Array(:,1) = [1; 1.2; 1.5; 1.8; 2.2; 2.7; 3.3; 3.9; 4.7; 5.6; 6.8; 8.2; ...
     10; 12; 15; 18; 22; 27; 33; 39; 47; 56; 68; 82; ... 
     100; 120; 150; 180; 220; 270; 330; 390; 470; 560; 680; 820; 1000];
 for i = 1:37
-    Plot_Array(i,2) = Mx{i ,7};
-    Plot_Array(i,3) = Mx{i,10};
-    Plot_Array(i,4) = Mx{i ,7} /Mx{i,10};
-    Plot_Array(i,5) = Mx{i ,7} /Mx{i,10};
+    Plot_Array(i,2) = Mx{i ,7}/0.5;
 end
 
 clf
@@ -77,10 +115,11 @@ semilogx(Plot_Array(:,1), Plot_Array(:,2),'-o', ...
     'MarkerFaceColor', 'blue')
 
 xlabel('Frequency (Hz)')
-ylabel('RMS Tension (N)')
+ylabel('Gain')
 
 % semilogx(Plot_Array(:,1), Plot_Array(:,3) )
 
+saveas(gcf,strcat('gainValue','.png'));
 
 
 %% アンプ立ち上がり時間用

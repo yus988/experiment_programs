@@ -11,9 +11,9 @@ cd_times = 1; % ディレクトリを動いた回数
 actType =  dir('*.txt'); % vp2.txt or hapbeat.txt
 
 max_loops = 3; % 何回ループさせるか。
-max_loops = 5; % 何回ループさせるか。
+% max_loops = 5; % 何回ループさせるか。
 
-isHapbeat = isempty(actType) || ~strcmp(actType.name,'vp.txt'); %Hapeatの場合
+isHapbeat = isempty(actType) || ~strcmp(actType.name,'vp2.txt'); %Hapeatの場合
 
 %% 生データを集計
 for whole_times = 1:max_loops
@@ -278,182 +278,268 @@ close
 % imshow(dispFrame2,'Border','tight') % border tight を入れることで余白なしに
 
 %% 出力方向の比較（論文掲載用）
+
+if isHapbeat
 % 平均の分を計算した.matが必要
 
-% Meanの描画
-figure
-imshow(Underlayer_img,'Border','tight') ;
-text(txtPosX,txtPosY - posOffset,'Mean','Color','black','FontSize', annotationTextFontSize);
+    % Meanの描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'Mean','Color','black','FontSize', annotationTextFontSize);
 
-for i = 1:3
-    if i == 1 
-        circleLineColor =  '#FFFF00'; %黄色     
-        text(txtPosX,txtPosY,'20Hz-05W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-    elseif i == 2
-        circleLineColor = '#FFA500'; %オレンジ
-        text(txtPosX,txtPosY + posOffset,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-    elseif i == 3
-        circleLineColor = '#FF0000'; %赤 
-        text(txtPosX,txtPosY +2*posOffset,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-    end   
-    tmpMeans = Mean_Cell{i,1}(:,4); %全測定箇所の測定値を含んだ行列
-    circleMeans = tmpMeans * radius_coef;
-    viscircles(centerOfAnnotation, circleMeans,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle','-','LineWidth',1);   
-end
-saveas(gcf,strcat('1ampMeanDiff','.png'));
-close
-
-% %%
-% 
-% %---------------------------------------------------------------------------------------------------------------------------------------------------
-% Stdの描画
-figure
-imshow(Underlayer_img,'Border','tight') ;
-text(txtPosX,txtPosY - posOffset,'STDEV','Color','black','FontSize', annotationTextFontSize);
-for i = 1:3
-    if i == 1 
-        circleLineColor =  '#FFFF00'; %黄色     
-        text(txtPosX,txtPosY,'20Hz-05W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-    elseif i == 2
-        circleLineColor = '#FFA500'; %オレンジ
-        text(txtPosX,txtPosY +posOffset,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-
-    elseif i == 3
-        circleLineColor = '#FF0000'; %赤 
-        text(txtPosX,txtPosY +2*posOffset,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-    end   
-%     tmpMeans = radiusOfMeans(pointsNum*i + 1:pointsNum * (i+1) ,:); %測定点の数だけ抽出_ex)前面1~50,51~100...
-%     viscircles(centerOfAnnotation, tmpMeans,'Color',circleLineColor,'LineStyle','-','LineWidth',2);   
-    tmpStd = Std_Cell{i,1}(:,4) * radius_coef;   %全測定箇所の測定値を含んだ行列。イテレート
-    viscircles(centerOfAnnotation, tmpStd,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
-end
-saveas(gcf,strcat('2ampStdDiff','.png'));
-close
-
-
-% 
-% %---------------------------------------------------------------------------------------------------------------------------------------------------
-% CV(変動係数、標準偏差÷平均値）の描画
-figure
-imshow(Underlayer_img,'Border','tight') ;
-text(txtPosX,txtPosY - posOffset,'CV','Color','black','FontSize', annotationTextFontSize);
-
-%提示信号によって切り分け
-
-% 出力方向の比較（標準偏差）
-comparisonType = 'Amplitude Comparison';
-for i = 1:3
-    if i == 1 
-        circleLineColor =  '#FFFF00'; %黄色     
-        text(txtPosX,txtPosY,'20Hz-05W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-    elseif i == 2
-        circleLineColor = '#FFA500'; %オレンジ
-        text(txtPosX,txtPosY +posOffset,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-
-    elseif i == 3
-        circleLineColor = '#FF0000'; %赤 
-        text(txtPosX,txtPosY +2*posOffset,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-    end     
-    for j=1: size(Mean_Cell{1,1},1)
-        tmpCVval(j,1) = Std_Cell{i,1}(j,4) / Mean_Cell{i,1}(j,4) ; %全測定箇所の測定値を含んだ行列        
+    for i = 1:3
+        if i == 1 
+            circleLineColor =  '#FFFF00'; %黄色     
+            text(txtPosX,txtPosY,'20Hz-05W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 2
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY + posOffset,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 3
+            circleLineColor = '#FF0000'; %赤 
+            text(txtPosX,txtPosY +2*posOffset,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        end   
+        tmpMeans = Mean_Cell{i,1}(:,4); %全測定箇所の測定値を含んだ行列
+        circleMeans = tmpMeans * radius_coef;
+        viscircles(centerOfAnnotation, circleMeans,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle','-','LineWidth',1);   
     end
-    tmpCV = tmpCVval * radius_coef;
-    viscircles(centerOfAnnotation, tmpCV,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
-end
-saveas(gcf,strcat('3ampCvDiff','.png'));
-close
+    saveas(gcf,strcat('1ampMeanDiff','.png'));
+    close
 
-% 周波数ごとの比較（平均）（比較対象が連番で無いので注意）
-% 平均の分を計算した.matが必要
+    % %%
+    % 
+    % %---------------------------------------------------------------------------------------------------------------------------------------------------
+    % Stdの描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'STDEV','Color','black','FontSize', annotationTextFontSize);
+    for i = 1:3
+        if i == 1 
+            circleLineColor =  '#FFFF00'; %黄色     
+            text(txtPosX,txtPosY,'20Hz-05W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 2
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY +posOffset,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
 
-% Meanの描画
-figure
-imshow(Underlayer_img,'Border','tight') ;
-text(txtPosX,txtPosY - posOffset,'Mean','Color','black','FontSize', annotationTextFontSize);
-
-for i = 1:3
-    if i == 1 %20Hz
-        circleLineColor = '#FFA500'; %オレンジ
-        text(txtPosX,txtPosY,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-        f = 2;
-    elseif i == 2 %80Hz
-        circleLineColor = '#0000FF'; %青色
-        text(txtPosX,txtPosY +posOffset,'80Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-        f = 4;
-    elseif i == 3 %140Hz
-        circleLineColor = '#FF00FF'; %マゼンタ 
-        text(txtPosX,txtPosY +2*posOffset,'140Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
-        f = 5;
-    end   
-    tmpMeans = Mean_Cell{f,1}(:,4); %全測定箇所の測定値を含んだ行列
-    circleMeans = tmpMeans * radius_coef;
-    viscircles(centerOfAnnotation, circleMeans,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle','-','LineWidth',1);   
-end
-saveas(gcf,strcat('4freqMeanDiff','.png'));
-close
-
-% %%
-% 
-% %---------------------------------------------------------------------------------------------------------------------------------------------------
-% Stdの描画
-figure
-imshow(Underlayer_img,'Border','tight') ;
-text(txtPosX,txtPosY - posOffset,'STDEV','Color','black','FontSize', annotationTextFontSize);
-for i = 1:3
-    if i == 1 %20Hz
-        circleLineColor = '#FFA500'; %オレンジ
-        text(txtPosX,txtPosY,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-        f = 2;
-    elseif i == 2 %80Hz
-        circleLineColor = '#0000FF'; %青色
-        text(txtPosX,txtPosY +posOffset,'80Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-        f = 4;
-    elseif i == 3 %140Hz
-        circleLineColor = '#FF00FF'; %マゼンタ 
-        text(txtPosX,txtPosY +2*posOffset,'140Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
-        f = 5;
-    end   
-%     tmpMeans = radiusOfMeans(pointsNum*i + 1:pointsNum * (i+1) ,:); %測定点の数だけ抽出_ex)前面1~50,51~100...
-%     viscircles(centerOfAnnotation, tmpMeans,'Color',circleLineColor,'LineStyle','-','LineWidth',2);   
-    tmpStd = Std_Cell{f,1}(:,4) * radius_coef;   %全測定箇所の測定値を含んだ行列。イテレート
-    viscircles(centerOfAnnotation, tmpStd,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
-end
-saveas(gcf,strcat('5freqStdDiff','.png'));
-close
-
-
-% 
-% %---------------------------------------------------------------------------------------------------------------------------------------------------
-% CV(変動係数、標準偏差÷平均値）の描画
-figure
-imshow(Underlayer_img,'Border','tight') ;
-text(txtPosX,txtPosY - posOffset,'CV','Color','black','FontSize', annotationTextFontSize);
-
-%提示信号によって切り分け
-% 出力方向の比較（標準偏差）
-comparisonType = 'Amplitude Comparison';
-for i = 1:3
-    if i == 1 %20Hz
-        circleLineColor = '#FFA500'; %オレンジ
-        text(txtPosX,txtPosY,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-        f = 2;
-    elseif i == 2 %80Hz
-        circleLineColor = '#0000FF'; %青色
-        text(txtPosX,txtPosY+posOffset,'80Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
-        f = 4;
-    elseif i == 3 %140Hz
-        circleLineColor = '#FF00FF'; %マゼンタ 
-        text(txtPosX,txtPosY+2*posOffset,'140Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
-        f = 5;
-    end   
-    
-    % 行列同士で割ると行列の形が崩れるので、各要素ごとに割る必要がある。
-    for j=1: size(Mean_Cell{1,1},1)
-        tmpCVval(j,1) = Std_Cell{f,1}(j,4) / Mean_Cell{f,1}(j,4) ; %全測定箇所の測定値を含んだ行列        
+        elseif i == 3
+            circleLineColor = '#FF0000'; %赤 
+            text(txtPosX,txtPosY +2*posOffset,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        end   
+    %     tmpMeans = radiusOfMeans(pointsNum*i + 1:pointsNum * (i+1) ,:); %測定点の数だけ抽出_ex)前面1~50,51~100...
+    %     viscircles(centerOfAnnotation, tmpMeans,'Color',circleLineColor,'LineStyle','-','LineWidth',2);   
+        tmpStd = Std_Cell{i,1}(:,4) * radius_coef;   %全測定箇所の測定値を含んだ行列。イテレート
+        viscircles(centerOfAnnotation, tmpStd,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
     end
-    tmpCV = tmpCVval * radius_coef;
-    viscircles(centerOfAnnotation, tmpCV,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
-end
-saveas(gcf,strcat('6freqCvDiff','.png'));
-close
+    saveas(gcf,strcat('2ampStdDiff','.png'));
+    close
 
+
+    % 
+    % %---------------------------------------------------------------------------------------------------------------------------------------------------
+    % CV(変動係数、標準偏差÷平均値）の描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'CV','Color','black','FontSize', annotationTextFontSize);
+
+    %提示信号によって切り分け
+
+    % 出力方向の比較（標準偏差）
+    comparisonType = 'Amplitude Comparison';
+    for i = 1:3
+        if i == 1 
+            circleLineColor =  '#FFFF00'; %黄色     
+            text(txtPosX,txtPosY,'20Hz-05W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 2
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY +posOffset,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+
+        elseif i == 3
+            circleLineColor = '#FF0000'; %赤 
+            text(txtPosX,txtPosY +2*posOffset,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        end     
+        for j=1: size(Mean_Cell{1,1},1)
+            tmpCVval(j,1) = Std_Cell{i,1}(j,4) / Mean_Cell{i,1}(j,4) ; %全測定箇所の測定値を含んだ行列        
+        end
+        tmpCV = tmpCVval * radius_coef;
+        viscircles(centerOfAnnotation, tmpCV,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
+    end
+    saveas(gcf,strcat('3ampCvDiff','.png'));
+    close
+
+    % 周波数ごとの比較（平均）（比較対象が連番で無いので注意）
+    % 平均の分を計算した.matが必要
+
+    % Meanの描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'Mean','Color','black','FontSize', annotationTextFontSize);
+
+    for i = 1:3
+        if i == 1 %20Hz
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+            f = 2;
+        elseif i == 2 %80Hz
+            circleLineColor = '#0000FF'; %青色
+            text(txtPosX,txtPosY +posOffset,'80Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+            f = 4;
+        elseif i == 3 %140Hz
+            circleLineColor = '#FF00FF'; %マゼンタ 
+            text(txtPosX,txtPosY +2*posOffset,'140Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
+            f = 5;
+        end   
+        tmpMeans = Mean_Cell{f,1}(:,4); %全測定箇所の測定値を含んだ行列
+        circleMeans = tmpMeans * radius_coef;
+        viscircles(centerOfAnnotation, circleMeans,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle','-','LineWidth',1);   
+    end
+    saveas(gcf,strcat('4freqMeanDiff','.png'));
+    close
+
+    % %%
+    % 
+    % %---------------------------------------------------------------------------------------------------------------------------------------------------
+    % Stdの描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'STDEV','Color','black','FontSize', annotationTextFontSize);
+    for i = 1:3
+        if i == 1 %20Hz
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+            f = 2;
+        elseif i == 2 %80Hz
+            circleLineColor = '#0000FF'; %青色
+            text(txtPosX,txtPosY +posOffset,'80Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+            f = 4;
+        elseif i == 3 %140Hz
+            circleLineColor = '#FF00FF'; %マゼンタ 
+            text(txtPosX,txtPosY +2*posOffset,'140Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
+            f = 5;
+        end   
+    %     tmpMeans = radiusOfMeans(pointsNum*i + 1:pointsNum * (i+1) ,:); %測定点の数だけ抽出_ex)前面1~50,51~100...
+    %     viscircles(centerOfAnnotation, tmpMeans,'Color',circleLineColor,'LineStyle','-','LineWidth',2);   
+        tmpStd = Std_Cell{f,1}(:,4) * radius_coef;   %全測定箇所の測定値を含んだ行列。イテレート
+        viscircles(centerOfAnnotation, tmpStd,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
+    end
+    saveas(gcf,strcat('5freqStdDiff','.png'));
+    close
+
+
+    % 
+    % %---------------------------------------------------------------------------------------------------------------------------------------------------
+    % CV(変動係数、標準偏差÷平均値）の描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'CV','Color','black','FontSize', annotationTextFontSize);
+
+    %提示信号によって切り分け
+    % 出力方向の比較（標準偏差）
+    comparisonType = 'Amplitude Comparison';
+    for i = 1:3
+        if i == 1 %20Hz
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY,'20Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+            f = 2;
+        elseif i == 2 %80Hz
+            circleLineColor = '#0000FF'; %青色
+            text(txtPosX,txtPosY+posOffset,'80Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+            f = 4;
+        elseif i == 3 %140Hz
+            circleLineColor = '#FF00FF'; %マゼンタ 
+            text(txtPosX,txtPosY+2*posOffset,'140Hz-1W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
+            f = 5;
+        end   
+
+        % 行列同士で割ると行列の形が崩れるので、各要素ごとに割る必要がある。
+        for j=1: size(Mean_Cell{1,1},1)
+            tmpCVval(j,1) = Std_Cell{f,1}(j,4) / Mean_Cell{f,1}(j,4) ; %全測定箇所の測定値を含んだ行列        
+        end
+        tmpCV = tmpCVval * radius_coef;
+        viscircles(centerOfAnnotation, tmpCV,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
+    end
+    saveas(gcf,strcat('6freqCvDiff','.png'));
+    close 
+else
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Vp2の場合
+
+    % Meanの描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'Mean','Color','black','FontSize', annotationTextFontSize);
+
+    for i = 1:3
+        if i == 1 
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 2
+            circleLineColor = '#0000FF'; %青色
+            text(txtPosX,txtPosY+posOffset,'80Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 3
+             circleLineColor = '#FF00FF'; %マゼンタ 
+            text(txtPosX,txtPosY+2*posOffset,'140Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
+        end   
+        tmpMeans = Mean_Cell{i,1}(:,4); %全測定箇所の測定値を含んだ行列
+        circleMeans = tmpMeans * radius_coef;
+        viscircles(centerOfAnnotation, circleMeans,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle','-','LineWidth',1);   
+    end
+    saveas(gcf,strcat('1freqMeanDiff','.png'));
+    close
+
+    % %%
+    % 
+    % %---------------------------------------------------------------------------------------------------------------------------------------------------
+    % Stdの描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'STDEV','Color','black','FontSize', annotationTextFontSize);
+    for i = 1:3
+        if i == 1 
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 2
+            circleLineColor = '#0000FF'; %青色
+            text(txtPosX,txtPosY+posOffset,'80Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 3
+             circleLineColor = '#FF00FF'; %マゼンタ 
+            text(txtPosX,txtPosY+2*posOffset,'140Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
+        end    
+    %     tmpMeans = radiusOfMeans(pointsNum*i + 1:pointsNum * (i+1) ,:); %測定点の数だけ抽出_ex)前面1~50,51~100...
+    %     viscircles(centerOfAnnotation, tmpMeans,'Color',circleLineColor,'LineStyle','-','LineWidth',2);   
+        tmpStd = Std_Cell{i,1}(:,4) * radius_coef;   %全測定箇所の測定値を含んだ行列。イテレート
+        viscircles(centerOfAnnotation, tmpStd,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
+    end
+    saveas(gcf,strcat('2freqStdDiff','.png'));
+    close
+
+
+    % 
+    % %---------------------------------------------------------------------------------------------------------------------------------------------------
+    % CV(変動係数、標準偏差÷平均値）の描画
+    figure
+    imshow(Underlayer_img,'Border','tight') ;
+    text(txtPosX,txtPosY - posOffset,'CV','Color','black','FontSize', annotationTextFontSize);
+
+    %提示信号によって切り分け
+
+    % 出力方向の比較（標準偏差）
+    comparisonType = 'Amplitude Comparison';
+    for i = 1:3
+        if i == 1 
+            circleLineColor = '#FFA500'; %オレンジ
+            text(txtPosX,txtPosY,'20Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 2
+            circleLineColor = '#0000FF'; %青色
+            text(txtPosX,txtPosY+posOffset,'80Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);
+        elseif i == 3
+             circleLineColor = '#FF00FF'; %マゼンタ 
+            text(txtPosX,txtPosY+2*posOffset,'140Hz-2W','Color',circleLineColor,'FontSize', annotationTextFontSize);        
+        end   
+        for j=1: size(Mean_Cell{1,1},1)
+            tmpCVval(j,1) = Std_Cell{i,1}(j,4) / Mean_Cell{i,1}(j,4) ; %全測定箇所の測定値を含んだ行列        
+        end
+        tmpCV = tmpCVval * radius_coef;
+        viscircles(centerOfAnnotation, tmpCV,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle',':','LineWidth',1);   
+    end
+    saveas(gcf,strcat('3freqCvDiff','.png'));
+    close
+end
