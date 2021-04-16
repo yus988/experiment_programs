@@ -1,5 +1,6 @@
 %% 定量実験処理用スクリプト
 % アンプ測定の√で実行
+
 clear
 Fs = 1e4;%サンプル周波数
 % Fs = 10e3;%サンプル周波数
@@ -102,20 +103,33 @@ plotArr(:,1) = [1; 1.2; 1.5; 1.8; 2.2; 2.7; 3.3; 3.9; 4.7; 5.6; 6.8; 8.2; ...
     10; 12; 15; 18; 22; 27; 33; 39; 47; 56; 68; 82; ... 
     100; 120; 150; 180; 220; 270; 330; 390; 470; 560; 680; 820; 1000];
 for i = 1:37
-    plotArr(i,2) = HapCell{i,7}/inputVol;
-    plotArr(i,3) = LepCell{i,7}/inputVol;
+    plotArr(i,2) = HapCell{i,7}/inputVol; % Hapbeatアンプ Vpp
+    plotArr(i,3) = LepCell{i,7}/inputVol; % Lepy Vpp
+    plotArr(i,4) = HapCell{i,6};% Hapbeatアンプ THD
+    plotArr(i,5) = LepCell{i,6};% Lepy THD
 end
 
 clf
 % semilogx(plotArr(:,1), plotArr(:,2) )
 % semilogx(plotArr(:,1), plotArr(:,4),'-o', ...
 %     'MarkerFaceColor', 'blue')
-semilogx(plotArr(:,1), plotArr(:,2),'-o', ...
-    'MarkerFaceColor', 'red','color','red')
+semilogx(plotArr(:,1), plotArr(:,2),'Marker','o', ...
+    'MarkerFaceColor', 'red','color','red');
 
 hold on;
-semilogx(plotArr(:,1), plotArr(:,3),'-o', ...
-    'MarkerFaceColor', 'blue','color','blue')
+semilogx(plotArr(:,1), plotArr(:,3),'Marker','o', ...
+    'MarkerFaceColor', 'blue','color','blue');
+
+hold on;
+lineColor = 'red';
+semilogx(plotArr(:,1), plotArr(:,4),'Marker','s', ...
+    'MarkerFaceColor', lineColor,'color',lineColor);
+
+hold on;
+lineColor = 'blue';
+semilogx(plotArr(:,1), plotArr(:,5),'Marker','s', ...
+    'MarkerFaceColor', lineColor,'color',lineColor);
+
 
 ax = gca;
 ax.XAxis.FontSize = 20;
