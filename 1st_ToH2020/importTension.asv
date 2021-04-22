@@ -12,10 +12,7 @@ Fs = 1e4;%サンプル周波数
 t = 0:1/Fs:1;
 
 %加速度センサの感度
-V2N = 0.01178; %力センサ5916, Hapbeatの時はプラス
-% V2N = - 0.01178; %力センサ5916, DCモーターの時はマイナス
-
-
+V2N = 0.01178; %力センサ5916
 nharm = 6;%thdの高調波数
 list = dir('*.csv');
 %10列2行のセルを作成。1列目にy軸加速度の行列、2列目に力センサ
@@ -158,7 +155,7 @@ Fs = 1e4;%サンプル周波数
 
 for i = 1:numFiles
     sig1 = transpose( Mx{i,2}(:,2)); % 入力電圧（反転させる）
-    sig2 = transpose( Mx{i,2}(:,1)); % 張力
+    sig2 = transpose(-1 * Mx{i,2}(:,1)); % 張力
 
     [P1,f1] = periodogram(sig1,[],[],Fs,'power');
     [P2,f2] = periodogram(sig2,[],[],Fs,'power');
