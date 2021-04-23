@@ -98,12 +98,16 @@ for actType = 1:4
 
                 if actType == 1 % HapUp
                     cellHapUpRMS{freqLoop,exeLoop}(i,1) = Mx{i,7}; % 張力RMS
+                    cellHapUpRMS{freqLoop,exeLoop}(i,2) = Mx{i,10}; % モーター両端RMS
                 elseif actType == 2  % HapDw
                     cellHapDwRMS{freqLoop,exeLoop}(i,1) = Mx{i,7}; % 張力RMS
+                    cellHapDwRMS{freqLoop,exeLoop}(i,2) = Mx{i,10}; % 張力RMS
                 elseif actType == 3  % DCmUp
                     cellDCmUpRMS{freqLoop,exeLoop}(i,1) = Mx{i,7}; % 張力RMS
+                    cellDCmUpRMS{freqLoop,exeLoop}(i,2) = Mx{i,10}; % 張力RMS
                 elseif actType == 4  % DCmDw
                     cellDCmDwRMS{freqLoop,exeLoop}(i,1) = Mx{i,7}; % 張力RMS
+                    cellDCmDwRMS{freqLoop,exeLoop}(i,2) = Mx{i,10}; % 張力RMS
                 end
                 
             end
@@ -161,7 +165,7 @@ tmpHapDwRMS = zeros(1,1);
 tmpDcmUpRMS = zeros(1,1);
 tmpDcmDwRMS = zeros(1,1);
 
-
+% 中の行列：空、T mean, T std, V mean, V std
 cellPlot = cell(1,1); % →1:HapUp,2:HapDw,3:DCmUp,4:DCmDw
 
 cellHapUpMean = cell(1,1);
@@ -192,142 +196,218 @@ for freqLoop = 1:size(cellHapUpRMS,1) % 周波数別, 縦方向
     end
 end
 
-arrDCmInput = cell(1,1);
 
-for i = 1:21
-        % Hap
-        cellPlot{1,1}(i,1) = 0.60 + (i-1) * 0.01; % 20Hz 
-        cellPlot{2,1}(i,1) = 0.70 + (i-1) * 0.01; % 80Hz 
-        cellPlot{3,1}(i,1) = 0.80 + (i-1) * 0.01; % 140Hz 
-        cellPlot{1,2}(i,1) = 0.60 + (i-1) * 0.01; % 20Hz 
-        cellPlot{2,2}(i,1) = 0.70 + (i-1) * 0.01; % 80Hz 
-        cellPlot{3,2}(i,1) = 0.80 + (i-1) * 0.01; % 140Hz 
-        % DCm
-        cellPlot{1,3}(i,1) = 0.60 + (i-1) * 0.01; % 20Hz 
-        cellPlot{2,3}(i,1) = 0.70 + (i-1) * 0.01; % 80Hz 
-        cellPlot{3,3}(i,1) = 0.80 + (i-1) * 0.01; % 140Hz 
-        cellPlot{1,4}(i,1) = 0.20 + (i-1) * 0.01; % 20Hz 
-        cellPlot{2,4}(i,1) = 0.30 + (i-1) * 0.01; % 80Hz 
-        cellPlot{3,4}(i,1) = 0.30 + (i-1) * 0.01; % 140Hz 
+for freqLoop = 1:size(cellHapUpRMS,1) % 周波数別, 縦方向
+    % matlabの関数を使うため、tmp行列に格納
+    for i = 1: size(cellHapUpRMS{1,1},1)
+        for exeLoop = 1 : size(cellHapUpRMS,2)
+            tmpHapUpRMS(exeLoop,1) = cellHapUpRMS{freqLoop,exeLoop}(i,2);
+            tmpHapDwRMS(exeLoop,1) = cellHapDwRMS{freqLoop,exeLoop}(i,2);
+            tmpDcmUpRMS(exeLoop,1) = cellDCmUpRMS{freqLoop,exeLoop}(i,2);
+            tmpDcmDwRMS(exeLoop,1) = cellDCmDwRMS{freqLoop,exeLoop}(i,2);
+        end
+        cellPlot{freqLoop,1}(i,4) = mean(tmpHapUpRMS);
+        cellPlot{freqLoop,1}(i,5) = std(tmpHapUpRMS);
+        
+        cellPlot{freqLoop,2}(i,4) = mean(tmpHapDwRMS);
+        cellPlot{freqLoop,2}(i,5) = std(tmpHapDwRMS);
+        
+        cellPlot{freqLoop,3}(i,4) = mean(tmpDcmUpRMS);
+        cellPlot{freqLoop,3}(i,5) = std(tmpDcmUpRMS);
+        
+        cellPlot{freqLoop,4}(i,4) = mean(tmpDcmDwRMS);
+        cellPlot{freqLoop,4}(i,5) = std(tmpDcmDwRMS);
+    end
 end
 
-close all
+% for i = 1:21
+%         % Hap up
+%         cellPlot{1,1}(i,1) = 0.60 + (i-1) * 0.01; % 20Hz 
+%         cellPlot{2,1}(i,1) = 0.70 + (i-1) * 0.01; % 80Hz 
+%         cellPlot{3,1}(i,1) = 0.80 + (i-1) * 0.01; % 140Hz 
+% 
+%         % DCm up
+%         cellPlot{1,3}(i,1) = 0.20 + (i-1) * 0.01; % 20Hz 
+%         cellPlot{2,3}(i,1) = 0.30 + (i-1) * 0.01; % 80Hz 
+%         cellPlot{3,3}(i,1) = 0.30 + (i-1) * 0.01; % 140Hz 
+% 
+% end
+% % Hap dw
+% cellPlot{1,2}(:,1) = flip(cellPlot{1,1}(:,1));
+% cellPlot{2,2}(:,1) = flip(cellPlot{2,1}(:,1));
+% cellPlot{3,2}(:,1) = flip(cellPlot{3,1}(:,1));
+% % DCm dw
+% cellPlot{1,4}(:,1) = flip(cellPlot{1,3}(:,1));
+% cellPlot{2,4}(:,1) = flip(cellPlot{2,3}(:,1));
+% cellPlot{3,4}(:,1) = flip(cellPlot{3,3}(:,1));
+% close all
 
+
+%%
+
+close all;
 lineStyle = '-';
 marker = 'o';
-%%
-figure
-hold on
-% HapbeatUp 20Hz
-lineColor =  '#FFA500'; %オレンジ
-freq = 1;
-errorbar(cellPlot{freq,1}(:,1), cellHapUpMean{freq,1}(:,1), cellHapUpMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,'MarkerFaceColor', lineColor, ...
-    'MarkerSize',4,'color',lineColor);
-% HapbeatUp 80Hz
-lineColor = '#0000FF'; %青色
-freq = 2;
-errorbar(cellPlot{freq,1}(:,1), cellHapUpMean{freq,1}(:,1), cellHapUpMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,'MarkerFaceColor', lineColor, ...
-    'MarkerSize',4,'color',lineColor);
-% HapbeatUp 140Hz
-lineColor = '#FF00FF'; %マゼンタ
-freq = 3;
-errorbar(cellPlot{freq,1}(:,1), cellHapUpMean{freq,1}(:,1), cellHapUpMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,'MarkerFaceColor', lineColor, ...
-    'MarkerSize',4,'color',lineColor);
-
-ax = gca;
-ax.YLim = [0 0.1];
-xlabel('Input Voltage from function generator (V)');
-ylabel('RMS value of tension (N)');
-title('Hapbeat increment');
-legend('Hapbeat 20Hz', 'Hapbeat 80Hz','Hapbeat 140Hz');
-set(gca,'FontSize',14)
-
-hold off
-
-%%
-figure
-% ax2 = subplot(2,2,2);
-hold on
-% DCmotorUp 20Hz
-lineColor =  '#FFA500'; %オレンジ
-freq = 1;
-errorbar(arrDCmInput{freq,1}(:,1), cellDCmUpMean{freq,1}(:,1), cellDCmUpMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor);
-% DCmotorUp 80Hz
-lineColor = '#0000FF'; %青色
-freq = 2;
-errorbar(arrDCmInput{freq,1}(:,1), cellDCmUpMean{freq,1}(:,1), cellDCmUpMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor);
-% DCmotorUp 140Hz
-lineColor = '#FF00FF'; %マゼンタ
-freq = 3;
-errorbar(arrDCmInput{freq,1}(:,1), cellDCmUpMean{freq,1}(:,1), cellDCmUpMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor);
-
-ax = gca;
-ax.YLim = [0 0.1];
-
-hold off
+for typeLoop = 1:4
+    if typeLoop == 1 
+        typeTxt = 'Hapbeat Increment';
+        act = 'Hapbeat';
+    elseif typeLoop == 2
+        typeTxt = 'Hapbeat Decrement';
+        act = 'Hapbeat';
+    elseif typeLoop == 3
+        typeTxt = 'DC motor Increment';
+        act = 'DC motor';
+    elseif typeLoop == 4
+        typeTxt = 'DC motor Decrement';
+        act = 'DC motor';
+    end
+    figure 
+    hold on
+    for freqLoop = 1:3
+        if freqLoop == 1
+            lineColor =  '#FFA500'; %オレンジ
+            freqText = '20Hz';
+        elseif freqLoop ==2
+            lineColor = '#0000FF'; %青色
+            freqText = '80Hz';
+        elseif freqLoop == 3
+            lineColor = '#FF00FF'; %マゼンタ
+            freqText = '140Hz';
+        end
+        markerFaceColor = 'black';
+        arr = cellPlot{freqLoop,typeLoop};
+        arr(:,2) = arr(:,2) * 1000;
+        arr(:,3) = arr(:,3) * 1000;
+        arr(:,4) = arr(:,4) * 1000 / 1.3; % 電流 (mA) に変換 i = v / r
+        arr(:,5) = arr(:,5) * 1000/ 1.3; % 
+        errorbar(arr(:,4),arr(:,2), arr(:,3),arr(:,3),arr(:,5),arr(:,5),...
+            'Marker',marker,'LineStyle', lineStyle,'MarkerFaceColor', markerFaceColor, ...
+            'MarkerSize',4,'color',lineColor);
+    end
+   
+        ax = gca;
+        ax.YLim = [0 100];
+        xlabel('RMS value of motor current  (mA)');
+        ylabel('RMS value of tension (mN)');
+        title(typeTxt);
+        legend(strcat(act,' 20 Hz'), strcat(act,' 80 Hz'),strcat(act,' 140 Hz'));
+        set(gca,'FontSize',14);
+        saveas(gcf,strcat(typeTxt,'.png'));
+    hold off
+end
 
 
-figure
-% subplot(2,-2,3)
-hold on
-% HapbeatDw 20Hz
-lineColor =  '#FFA500'; %オレンジ
-freq = 1;
-errorbar(flip(cellPlot{freq,1}(:,1)), cellHapDwMean{freq,1}(:,1), cellHapDwMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor);
-% HapbeatDw 80Hz
-lineColor = '#0000FF'; %青色
-freq = 2;
-errorbar(flip(cellPlot{freq,1}(:,1)), cellHapDwMean{freq,1}(:,1), cellHapDwMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor);
-% HapbeatDw 140Hz
-lineColor = '#FF00FF'; %マゼンタ
-freq = 3;
-errorbar(flip(cellPlot{freq,1}(:,1)), cellHapDwMean{freq,1}(:,1), cellHapDwMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor,'MarkerSize',12);
-
-ax = gca;
-ax.YLim = [0 0.1];
-xlabel('Input Voltage from function generator (V)');
-ylabel('RMS value of tension (N)');
-
-hold off
-
-figure
-% subplot(2,2,4)
-hold on
-% DCmotorDw 20Hz
-lineColor =  '#FFA500'; %オレンジ
-freq = 1;
-errorbar(flip(arrDCmInput{freq,1}(:,1)), cellDCmDwMean{freq,1}(:,1), cellDCmDwMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor);
-% DCmotorDw 80Hz
-lineColor = '#0000FF'; %青色
-freq = 2;
-errorbar(flip(arrDCmInput{freq,1}(:,1)), cellDCmDwMean{freq,1}(:,1), cellDCmDwMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor);
-% DCmotorDw 140Hz
-lineColor = '#FF00FF'; %マゼンタ
-freq = 3;
-errorbar(flip(arrDCmInput{freq,1}(:,1)), cellDCmDwMean{freq,1}(:,1), cellDCmDwMean{freq,1}(:,2)...
-    ,'Marker',marker,'LineStyle', lineStyle,...
-    'MarkerFaceColor', lineColor,'color',lineColor);
-
-ax = gca;
-ax.YLim = [0 0.1];
-
-hold off
+%             %%
+%             
+%             
+%             
+% freq = 1;
+% errorbar(cellPlot{freq,1}(:,1), cellHapUpMean{freq,1}(:,1), cellHapUpMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,'MarkerFaceColor', lineColor, ...
+%     'MarkerSize',4,'color',lineColor);
+% % HapbeatUp 80Hz
+% freq = 2;
+% errorbar(cellPlot{freq,1}(:,1), cellHapUpMean{freq,1}(:,1), cellHapUpMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,'MarkerFaceColor', lineColor, ...
+%     'MarkerSize',4,'color',lineColor);
+% % HapbeatUp 140Hz
+% freq = 3;
+% errorbar(cellPlot{freq,1}(:,1), cellHapUpMean{freq,1}(:,1), cellHapUpMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,'MarkerFaceColor', lineColor, ...
+%     'MarkerSize',4,'color',lineColor);
+% 
+% ax = gca;
+% ax.YLim = [0 0.1];
+% xlabel('Input Voltage from function generator (V)');
+% ylabel('RMS value of tension (N)');
+% title('Hapbeat increment');
+% legend('Hapbeat 20Hz', 'Hapbeat 80Hz','Hapbeat 140Hz');
+% set(gca,'FontSize',14)
+% 
+% hold off
+% 
+% %%
+% figure
+% % ax2 = subplot(2,2,2);
+% hold on
+% % DCmotorUp 20Hz
+% lineColor =  '#FFA500'; %オレンジ
+% freq = 1;
+% errorbar(arrDCmInput{freq,1}(:,1), cellDCmUpMean{freq,1}(:,1), cellDCmUpMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
+% % DCmotorUp 80Hz
+% lineColor = '#0000FF'; %青色
+% freq = 2;
+% errorbar(arrDCmInput{freq,1}(:,1), cellDCmUpMean{freq,1}(:,1), cellDCmUpMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
+% % DCmotorUp 140Hz
+% lineColor = '#FF00FF'; %マゼンタ
+% freq = 3;
+% errorbar(arrDCmInput{freq,1}(:,1), cellDCmUpMean{freq,1}(:,1), cellDCmUpMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
+% 
+% ax = gca;
+% ax.YLim = [0 0.1];
+% 
+% hold off
+% 
+% 
+% figure
+% % subplot(2,-2,3)
+% hold on
+% % HapbeatDw 20Hz
+% lineColor =  '#FFA500'; %オレンジ
+% freq = 1;
+% errorbar(flip(cellPlot{freq,1}(:,1)), cellHapDwMean{freq,1}(:,1), cellHapDwMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
+% % HapbeatDw 80Hz
+% lineColor = '#0000FF'; %青色
+% freq = 2;
+% errorbar(flip(cellPlot{freq,1}(:,1)), cellHapDwMean{freq,1}(:,1), cellHapDwMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
+% % HapbeatDw 140Hz
+% lineColor = '#FF00FF'; %マゼンタ
+% freq = 3;
+% errorbar(flip(cellPlot{freq,1}(:,1)), cellHapDwMean{freq,1}(:,1), cellHapDwMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor,'MarkerSize',12);
+% 
+% ax = gca;
+% ax.YLim = [0 0.1];
+% xlabel('Input Voltage from function generator (V)');
+% ylabel('RMS value of tension (N)');
+% 
+% hold off
+% 
+% figure
+% % subplot(2,2,4)
+% hold on
+% % DCmotorDw 20Hz
+% lineColor =  '#FFA500'; %オレンジ
+% freq = 1;
+% errorbar(flip(arrDCmInput{freq,1}(:,1)), cellDCmDwMean{freq,1}(:,1), cellDCmDwMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
+% % DCmotorDw 80Hz
+% lineColor = '#0000FF'; %青色
+% freq = 2;
+% errorbar(flip(arrDCmInput{freq,1}(:,1)), cellDCmDwMean{freq,1}(:,1), cellDCmDwMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
+% % DCmotorDw 140Hz
+% lineColor = '#FF00FF'; %マゼンタ
+% freq = 3;
+% errorbar(flip(arrDCmInput{freq,1}(:,1)), cellDCmDwMean{freq,1}(:,1), cellDCmDwMean{freq,1}(:,2)...
+%     ,'Marker',marker,'LineStyle', lineStyle,...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
+% 
+% ax = gca;
+% ax.YLim = [0 0.1];
+% 
+% hold off
