@@ -75,6 +75,7 @@ for k=0:1
     Mx{i+1,8+3*k} = strcat('ch', num2str(k+1), 'THD');
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 最低張力検証用
 % arr20Hz = zeros(size(Mx,1),2);
 arr20Hz = zeros(1,2);
@@ -84,16 +85,6 @@ arrRMS = zeros(1,2);
 
 for i = 1:size(Mx,1)-1
     tmpTensionVol = Mx{i,7} * V2N; % 張力RMS (電圧表示）
-%     if Mx{i,4} > 19 && Mx{i,4} < 21
-%         arr20Hz(i,1)=Mx{i,10} ; % 入力電圧RMS
-%         arr20Hz(i,2)=tmpTensionVol; % 張力RMS (
-%     elseif Mx{i,4} > 79 && Mx{i,4} < 81
-%         arr80Hz(i,1)=Mx{i,10}; % 入力電圧RMS
-%         arr80Hz(i,2)=tmpTensionVol; % 張力RMS
-%     elseif Mx{i,4} > 139 && Mx{i,4} < 141
-%         arr140Hz(i,1)=Mx{i,10}; % 入力電圧RMS
-%         arr140Hz(i,2)=tmpTensionVol; % 張力RMS
-%     end
     arrRMS(i,1)=Mx{i,10}; % 入力電圧RMS
     arrRMS(i,2)=tmpTensionVol; % 張力RMS
 end
@@ -106,21 +97,6 @@ subplot(2,1,2)
 plot(arrRMS(:,2),'Marker','o', ...
     'MarkerFaceColor', 'blue','color','blue');
 saveas(gcf,'result.png');
-%
-% figure
-% plot(arr20Hz(:,1),arr20Hz(:,2));
-% title('20Hz');
-% saveas(gcf,'20Hz.png');
-% 
-% figure
-% plot(arr80Hz(:,1),arr80Hz(:,2));
-% title('80Hz');
-% saveas(gcf,'80Hz.png');
-% 
-% figure
-% plot(arr140Hz(:,1),arr140Hz(:,2));
-% title('140Hz');
-% saveas(gcf,'140Hz.png');
 
 save;
 
