@@ -7,7 +7,7 @@ close all
 Fs = 1e4;%サンプル周波数
 t = 0:1/Fs:1;
 %加速度センサの感度
-V2G = 0.206; %MMA7361L 6Gモード
+V2G6 = 0.206 / 9.80665; %MMA7361L 6Gモード = v/g v / (g*9.80665)
 % V2G = 0.800; %MMA7361L 1.5Gモード
 V2N = 0.01178; %力センサ5916
 nharm = 6;%thdの高調波数
@@ -24,7 +24,7 @@ labels_x = zeros(num_points,1);
 labels_y = zeros(num_points,1);
 labels_z = zeros(num_points,1);
 labels_sum = zeros(num_points,1);
-radius_coef = 60;%描画のため加速度(g)に掛け合わせる係数
+radius_coef = 15 / 9.80665 ;%描画のため加速度(g)に掛け合わせる係数
 
 % 種類によって変更
 area = 0 ; %前面：0
@@ -55,9 +55,9 @@ target_row = 15;  %Sum
 for i = 1:numFiles
     Mx{i,1}= csvread(list(i).name,21,1,[21,1,10020,4]);
     % オフセット除去（すべての要素から平均値を引く）
-    Mx{i,2}(:,1) = ( Mx{i,1}(:,1) - mean(Mx{i,1}(:,1)) ) / V2G; %下に引っ張った時を正に（標準では負）
-    Mx{i,2}(:,2) = ( Mx{i,1}(:,2) - mean(Mx{i,1}(:,2)) ) / V2G;
-    Mx{i,2}(:,3) = ( Mx{i,1}(:,3) - mean(Mx{i,1}(:,3)) ) / V2G;
+    Mx{i,2}(:,1) = ( Mx{i,1}(:,1) - mean(Mx{i,1}(:,1)) ) / V2G6; %下に引っ張った時を正に（標準では負）
+    Mx{i,2}(:,2) = ( Mx{i,1}(:,2) - mean(Mx{i,1}(:,2)) ) / V2G6;
+    Mx{i,2}(:,3) = ( Mx{i,1}(:,3) - mean(Mx{i,1}(:,3)) ) / V2G6;
     Mx{i,2}(:,4) = ( Mx{i,1}(:,4) - mean(Mx{i,1}(:,4)) );
     
     for k = 0:2 % ch1~3各Hz,RMS,THDの記録
@@ -146,13 +146,13 @@ end
 %描画のため加速度(g)に掛け合わせる係数
 
 
-if area == 0
-    radius_coef = 15;%前面
-elseif area == 1
-    radius_coef = 25;%側面
-elseif area ==2
-    radius_coef = 25;%側面
-end
+% if area == 0
+%     radius_coef = 15;%前面
+% elseif area == 1
+%     radius_coef = 25;%側面
+% elseif area ==2
+%     radius_coef = 25;%側面
+% end
    
 
 % for axis = 0:3

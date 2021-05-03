@@ -129,98 +129,96 @@ end
 
 
 %% 信号の周波数成分の比較
-% Fs = 1e4;%サンプル周波数
+Fs = 1e4;%サンプル周波数
+
+for i = 1:numFiles
+    
+        % サンプリングレートが1e3の信号がある場合
+    if isfs1e3
+        if i <= 12
+                Fs = 1e3;
+        else
+                Fs = 1e4;
+        end
+    end
+    
+    sig1 = Mx{i,2}(:,2); % 入力電圧（反転させる）
+    sig2 = Mx{i,2}(:,1); % 張力
+
+    [P1,f1] = periodogram(sig1,[],[],Fs,'power');
+    [P2,f2] = periodogram(sig2,[],[],Fs,'power');
+
+%     figure
+%     t = (0:numel(sig1)-1)/Fs;
+%     subplot(2,2,1)
+%     plot(t,sig1,'k')
+%     ylabel('s1')
+%     grid on
+%     title('Time Series')
+%     subplot(2,2,3)
+%     plot(t,sig2)
+%     ylabel('s2')
+%     grid on
+%     xlabel('Time (secs)')
+%     subplot(2,2,2)
+%     plot(f1,P1,'k')
+%     ylabel('P1')
+%     grid on
+%     axis tight
+%     title('Power Spectrum')
+%     subplot(2,2,4)
+%     plot(f2,P2)
+%     ylabel('P2')
+%     grid on
+%     axis tight
+%     xlabel('Frequency (Hz)')
+
+    % コヒーレンス
+    [Cxy,f] = mscohere(sig1,sig2,[],[],[],Fs);
+    Pxy     = cpsd(sig1,sig2,[],[],[],Fs);
+    phase   = -angle(Pxy)/pi*180;
+    [pks,locs] = findpeaks(Cxy,'MinPeakHeight',0.75);
 % 
-% for i = 1:numFiles
+%     figure
+% %   振幅二乗コヒーレンス
+%     subplot(2,1,1)
+%     plot(f,Cxy)
+%     title('Coherence Estimate')
+%     grid on
+%     hgca = gca;
+%     hgca.XTick = round(f(locs),1);
+%     % hgca.YTick = 0.75;
+% %     axis([0 200 0 1]);
 %     
-%         % サンプリングレートが1e3の信号がある場合
-%     if isfs1e3
-%         if i <= 12
-%                 Fs = 1e3;
-%         else
-%                 Fs = 1e4;
-%         end
-%     end
-%     
-%     sig1 = Mx{i,2}(:,2); % 入力電圧（反転させる）
-% %     sig2 = Mx{i,2}(:,1); % 張力
-%     sig2 = -1 * Mx{i,2}(:,1); % 張力
-% 
-% 
-%     [P1,f1] = periodogram(sig1,[],[],Fs,'power');
-%     [P2,f2] = periodogram(sig2,[],[],Fs,'power');
-% 
-% %     figure
-% %     t = (0:numel(sig1)-1)/Fs;
-% %     subplot(2,2,1)
-% %     plot(t,sig1,'k')
-% %     ylabel('s1')
-% %     grid on
-% %     title('Time Series')
-% %     subplot(2,2,3)
-% %     plot(t,sig2)
-% %     ylabel('s2')
-% %     grid on
-% %     xlabel('Time (secs)')
-% %     subplot(2,2,2)
-% %     plot(f1,P1,'k')
-% %     ylabel('P1')
-% %     grid on
-% %     axis tight
-% %     title('Power Spectrum')
-% %     subplot(2,2,4)
-% %     plot(f2,P2)
-% %     ylabel('P2')
-% %     grid on
-% %     axis tight
-% %     xlabel('Frequency (Hz)')
-% 
-%     % コヒーレンス
-%     [Cxy,f] = mscohere(sig1,sig2,[],[],[],Fs);
-%     Pxy     = cpsd(sig1,sig2,[],[],[],Fs);
-%     phase   = -angle(Pxy)/pi*180;
-%     [pks,locs] = findpeaks(Cxy,'MinPeakHeight',0.75);
-% % 
-% %     figure
-% % %   振幅二乗コヒーレンス
-% %     subplot(2,1,1)
-% %     plot(f,Cxy)
-% %     title('Coherence Estimate')
-% %     grid on
-% %     hgca = gca;
-% %     hgca.XTick = round(f(locs),1);
-% %     % hgca.YTick = 0.75;
-% % %     axis([0 200 0 1]);
-% %     
-% % %   位相遅れ
-% %     subplot(2,1,2)
-% %     plot(f,phase)
-% %     title('Cross-spectrum Phase (deg)')
-% %     grid on
-% %     hgca = gca;
-% %     hgca.XTick = round(f(locs,1),1); 
-% %     yticks = sort(round(phase(locs)));
-% %     % hgca.YTick = round(phase(locs));
-% %     xlabel('Frequency (Hz)')
-% % %     axis([0 200 -180 180])
-% 
-%     Input_Hz = Mx{i,6};
-%     % knnsearch(f,Input_Hz): 入力周波数と最も近い周波数のIndexを返す
-%     phaseDelay = phase(knnsearch(f,Input_Hz), 1);
-%     resultCell{i,4} = phaseDelay;
-%     imgTitle = strcat(num2str(round(Input_Hz)),'Hz');
-% %     saveas(gcf,strcat(imgTitle,'_','mscohere '));
-% %     saveas(gcf,strcat(imgTitle,'_','mscohere ','.png'));
-% end
-% 
-% 
-% % resultCellを書き出し
-% if ~isfolder('result')
-%     mkdir result
-%     cd result
-%     writecell(resultCell,'result.csv')
-%     cd ..
-% end
+% %   位相遅れ
+%     subplot(2,1,2)
+%     plot(f,phase)
+%     title('Cross-spectrum Phase (deg)')
+%     grid on
+%     hgca = gca;
+%     hgca.XTick = round(f(locs,1),1); 
+%     yticks = sort(round(phase(locs)));
+%     % hgca.YTick = round(phase(locs));
+%     xlabel('Frequency (Hz)')
+% %     axis([0 200 -180 180])
+
+    Input_Hz = Mx{i,6};
+    % knnsearch(f,Input_Hz): 入力周波数と最も近い周波数のIndexを返す
+    phaseDelay = phase(knnsearch(f,Input_Hz), 1);
+    resultCell{i,4} = phaseDelay;
+    imgTitle = strcat(num2str(round(Input_Hz)),'Hz');
+%     saveas(gcf,strcat(imgTitle,'_','mscohere '));
+%     saveas(gcf,strcat(imgTitle,'_','mscohere ','.png'));
+end
+
+
+% resultCellを書き出し
+if ~isfolder('result')
+    mkdir result
+    cd result
+    writecell(resultCell,'result.csv')
+    cd ..
+end
 
 %% 最低張力検証用
 % arr20Hz = zeros(size(Mx,1),2);

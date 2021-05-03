@@ -4,8 +4,6 @@
 % ルートフォルダで実行
 
 clear
-
-
 graphCell = cell(zeros(1));
 
 for cd_times = 1:6

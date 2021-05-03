@@ -70,13 +70,13 @@ end
 
 
 %% RMSから平均（Mean）を算出
-tmp = zero(1,1);
+tmp = zeros(1,1);
 for i = 1:size(RMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
     for j=1:size(RMS_Cell{1,1},2) % 軸ごとのイテレート。x,y,z,sum
         for k =1: size(RMS_Cell{1,1},1) % 測定箇所ごとのイテレート。
             % matlabの関数を使うため、tmp行列に格納
             for loop = 1 : maxLoops
-                tmp(maxLoops,1) = RMS_Cell{i,maxLoops}(k,j);
+                tmp(loop,1) = RMS_Cell{i,loop}(k,j);
             end
             Mean_Cell{i,1}(k,j) = mean(tmp);
         end
@@ -88,9 +88,12 @@ for i = 1:size(RMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
     for j=1:size(RMS_Cell{1,1},2) % 軸ごとのイテレート。x,y,z,sum
         for k =1: size(RMS_Cell{1,1},1) % 測定箇所ごとのイテレート。
             % matlabの関数を使うため、tmp行列に格納
-            tmp(1,1) = RMS_Cell{i,1}(k,j);
-            tmp(2,1) = RMS_Cell{i,2}(k,j);
-            tmp(3,1) = RMS_Cell{i,3}(k,j);
+            for loop = 1 : maxLoops
+                tmp(loop,1) = RMS_Cell{i,loop}(k,j);
+            end
+%             tmp(1,1) = RMS_Cell{i,1}(k,j);
+%             tmp(2,1) = RMS_Cell{i,2}(k,j);
+%             tmp(3,1) = RMS_Cell{i,3}(k,j);
             Std_Cell{i,1}(k,j) = std(tmp);
         end
     end
@@ -191,7 +194,7 @@ posOffset = 15;%改行量
 
 labels = zeros(pointsNum,1);
 
-radius_coef = 15;%描画のため加速度(g)に掛け合わせる係数
+radius_coef = 15  / 9.80665;%描画のため加速度(g)に掛け合わせる係数
 annotationTextFontSize = 8; %図内注釈の文字の大きさ
 
 %---------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 %%人体の各点の加速度測定時のファイル分け用スクリプト
 % % 実験1定量評価・周波数応答のグラフの作成に使用
 %%入力電圧と周波数から40/160Hz_0.5/1/2Wに分類
-% ルートフォルダで実行
+% ルートフォルダで実行■1定量実験\0422Hapbeat重さ実験\Back
 
 clear
 Mx = cell(1,1);
@@ -26,7 +26,7 @@ for cd_times = 1:5
     Fs = 1e3;%サンプル周波数
     t = 0:1/Fs:1;
     %加速度センサの感度
-    V2G6 = 0.206; %MMA7361L 6Gモード
+    V2G6 = 0.206 /9.80665; %MMA7361L 6Gモード = v/g v / (g*9.80665)
     nharm = 6;%thdの高調波数
     list1e4 = dir('*.csv');%サンプリングレート10kHzのデータ
     numFiles1e4 = length(list1e4);
@@ -111,9 +111,11 @@ end
 legend('20 Hz - 0.5 W', '20 Hz - 1 W', '20 Hz - 2 W', '80 Hz - 1 W', '140 Hz - 1 W');
 hold off
 xlabel('Weight mass (g)')
-ylabel('RMS value of triaxial acceleration (G)')
+ylabel('RMS value of triaxial acceleration (m/s^{2})')
+ax = gca;
+ax.YLim = [0 45];
 set(gca,'FontSize',15)
-
+saveas(gca,'figure.fig');
 %     
 % %% グラフ描画用のcell作成（平均、標準偏差）
 % 

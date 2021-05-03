@@ -31,7 +31,7 @@ for cd_times = 1:6
         Fs = 1e3;%サンプル周波数
         t = 0:1/Fs:1;
         %加速度センサの感度
-        V2G6 = 0.206; %MMA7361L 6Gモード
+        V2G6 = 0.206 /9.80665; %MMA7361L 6Gモード = v/g v / (g*9.80665)
         nharm = 6;%thdの高調波数
         list1e4 = dir('*.csv');%サンプリングレート10kHzのデータ
         numFiles1e4 = length(list1e4);
@@ -162,14 +162,14 @@ ax = gca; % current axes
 ax.FontSize = labelFont;
 ax.XAxis.TickDirection  = 'out';
 ax.XAxis.TickLength = [0.04 0.0];
-hline = refline([0 1]);
+hline = refline([0 10]);
 
 % ax.YLim = [0 11];
 % ax.YAxis.TickValues = [0:11];
 % ax.XAxis.TickValues = [1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800 900 1000];
 
 xlabel('Frequency (Hz)','FontSize',labelFont)
-ylabel('Acceleration amplitude (G)','FontSize',labelFont)
+ylabel('Acceleration amplitude (m/s^{2})','FontSize',labelFont)
 
 
 grid on

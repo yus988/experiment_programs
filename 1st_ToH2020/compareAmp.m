@@ -223,6 +223,7 @@ lineColor = '#87cefa';
 semilogx(plotArr(:,1), plotArr(:,2),'Marker',marker, 'LineStyle', lineStyle, ...
     'MarkerFaceColor', lineColor,'color',lineColor);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % configure left axis
 ylabel('THD (dB)');
 set(gca,'FontSize',20)
