@@ -18,9 +18,10 @@ list = dir('*.csv');
 fileName = append(list.name);
 data =  readmatrix(fileName);
 
+numChannel = max(data(:,3));
 % channel別でソート
 % Mx 1: ch毎に分類したデータ、2: DC TimeTable, 3: AC TimeTable
-for i = 0:5
+for i = 0:numChannel
     % chごとに振り分け(if の短縮系）
     Mx{i+1,1} = data(data(:,3)==i,:);
     
@@ -45,12 +46,19 @@ end
 % yf = medfilt1(yf,10);
 % TTfilter = timetable(yf,'SampleRate',Fs);
 
+
+
+%% create timetable
 TT1 = Mx{1,2};
 TT2 = Mx{2,2};
 TT3 = Mx{3,2};
 TT4 = Mx{4,2};
 TT5 = Mx{5,2};
 TT6 = Mx{6,2};
+% TT7 = Mx{7,2};
+% TT8 = Mx{8,2};
+% TT9 = Mx{9,2};
+
 % 
 TT1_F = Mx{1,4};
 TT2_F = Mx{2,4};
@@ -58,6 +66,56 @@ TT3_F = Mx{3,4};
 TT4_F = Mx{4,4};
 TT5_F = Mx{5,4};
 TT6_F = Mx{6,4};
+% TT7_F = Mx{7,4};
+% TT8_F = Mx{8,4};
+% TT9_F = Mx{9,4};
+
+%% plot 
+% channel1
+figure
+hold on
+tt = TT1;
+plotColor = 'red';
+plot(tt.Time, tt.y,'color',plotColor);
+
+tt = TT2;
+plotColor = 'yellow';
+plot(tt.Time, tt.y,'color',plotColor);
+
+tt = TT3;
+plotColor = 'green';
+plot(tt.Time, tt.y,'color',plotColor);
+
+% channel2
+figure
+hold on
+tt = TT4;
+plotColor = 'red';
+plot(tt.Time, tt.y,'color',plotColor);
+
+tt = TT5;
+plotColor = 'yellow';
+plot(tt.Time, tt.y,'color',plotColor);
+
+tt = TT6;
+plotColor = 'green';
+plot(tt.Time, tt.y,'color',plotColor);
+
+% channel3
+% figure
+% hold on
+% tt = TT7;
+% plotColor = 'red';
+% plot(tt.Time, tt.y,'color',plotColor);
+% 
+% tt = TT8;
+% plotColor = 'yellow';
+% plot(tt.Time, tt.y,'color',plotColor);
+% 
+% tt = TT9;
+% plotColor = 'green';
+% plot(tt.Time, tt.y,'color',plotColor);
+
 
 %% 音声信号の生成
 %  Fs = round(Fs);
