@@ -81,7 +81,80 @@ for i = 1:numFiles1e4
     Mx{k,6}.Properties.VariableNames{'Var1'}='x' ;
     Mx{k,6}.Properties.VariableNames{'Var2'}='y' ;
     Mx{k,6}.Properties.VariableNames{'Var3'}='z' ;
+    
+%   各列を2回積分して変位に
+    temp = 1/Fs * cumtrapz(xyz);
+    temp = temp - mean(temp);
+    XYZ = 1/fs * cumtrapz(temp) * 9.80665 * 1e6;
+    F(:,i) = XYZ;
 end
+%%
+% Fs = 1e3;
+% x = 0:1/Fs:9.9999;
+% acc = Mx{6,2}(:,1);
+Fs = 1e4;
+x = 0:1/Fs:0.9999;
+acc = Mx{19,2}(:,1);
+% acc = Mx{30,2}(:,1);
+
+filtFreq = 33/2;
+close all 
+figure
+
+row = 2; col = 3;
+subplot(row,col,1)
+acc = acc-mean(acc);
+% acc = highpass(acc,filtFreq,Fs,'Steepness',0.85,'StopbandAttenuation',60);
+plot(x,acc);
+title('acc');
+
+subplot(row,col,2)
+vel = cumtrapz(1/Fs,acc);
+vel = vel-mean(vel);
+% vel = highpass(vel,filtFreq,Fs,'Steepness',0.85,'StopbandAttenuation',60);
+plot(x,vel);
+title('vel');
+
+subplot(row,col,3)
+dis = cumtrapz(1/Fs,vel);
+dis = dis-mean(dis);
+dis = highpass(dis,filtFreq,Fs,'Steepness',0.9999,'StopbandAttenuation',60);
+plot(x,dis)
+title('dis');
+
+TT = timetable(acc,vel,dis,'SampleRate',Fs);
+
+
+subplot(row,col,4)
+[pxx,f] = pspectrum(TT(:,1));
+plot(f,pow2db(pxx));
+xlabel('Frequency (Hz)')
+ylabel('Power Spectrum (dB)')
+set(gca,'xscale','log')
+title('acc');
+xlim([1 1000])
+
+subplot(row,col,5)
+[pxx,f] = pspectrum(TT(:,2));
+plot(f,pow2db(pxx));
+xlabel('Frequency (Hz)')
+ylabel('Power Spectrum (dB)')
+set(gca,'xscale','log')
+title('vel');
+xlim([1 1000])
+
+subplot(row,col,6)
+[pxx,f] = pspectrum(TT(:,3));
+plot(f,pow2db(pxx));
+xlabel('Frequency (Hz)')
+ylabel('Power Spectrum (dB)')
+set(gca,'xscale','log')
+title('dis');
+xlim([1 1000])
+
+% TT.Properties.VariableNames{'Var1'}='acc' ;
+% TT.Properties.VariableNames{'Var2'}='vel' ;
+% TT.Properties.VariableNames{'Var3'}='dis' ;
 
 %% パワースペクトラム
 close all
@@ -149,8 +222,8 @@ plot(f,pow2db(pxx));
 grid on
 xlabel('Frequency (Hz)')
 ylabel('Power Spectrum (dB)')
-title('Default Frequency Resolution')
 set(gca,'xscale','log')
+title('Default Frequency Resolution')
 
 fileName = replace(desc,'.','r');% ファイル名に . が入るのを阻止
 savefig(fileName);
