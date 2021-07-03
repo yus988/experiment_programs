@@ -15,9 +15,9 @@ for cd_times = 1:5
      elseif cd_times == 5
         cd '140Hz_1W';
     end
-    HumanPointsAccImport
+    HumanPointsAccImport;
     save;
     cd .. 
 end
 
-close
+close;

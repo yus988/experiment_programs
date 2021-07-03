@@ -7,9 +7,15 @@ close all
 Fs = 1e4;%サンプル周波数
 t = 0:1/Fs:1;
 %加速度センサの感度
+
+% V2G6 = 0.206; %MMA7361L 6Gモード = v/g v / (g*9.80665)
+% radius_coef = 15;
 V2G6 = 0.206 / 9.80665; %MMA7361L 6Gモード = v/g v / (g*9.80665)
+radius_coef = 15 / 9.80665 ;%描画のため加速度(g)に掛け合わせる係数
+
 % V2G = 0.800; %MMA7361L 1.5Gモード
 V2N = 0.01178; %力センサ5916
+
 nharm = 6;%thdの高調波数
 %10列2行のセルを作成。1列目にy軸加速度の行列、2列目に力センサ
 %（できれば1-の連番にして一々ファイル名を変更しないでも良いようにしたい
@@ -24,7 +30,6 @@ labels_x = zeros(num_points,1);
 labels_y = zeros(num_points,1);
 labels_z = zeros(num_points,1);
 labels_sum = zeros(num_points,1);
-radius_coef = 15 / 9.80665 ;%描画のため加速度(g)に掛け合わせる係数
 
 % 種類によって変更
 area = 0 ; %前面：0

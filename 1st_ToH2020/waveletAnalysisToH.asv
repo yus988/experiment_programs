@@ -1,71 +1,127 @@
+% 各試行の波形に対してwavelet変換を行う
+% csvファイルが入っているフォルダで実行
+
+
+%% 以下各測定結果ファイルごとの処理
+clear
+Mx = cell(1,1);
+cellResult = cell(zeros(1));
+
+Fs = 1e3;%サンプル周波数
+t = 0:1/Fs:1;
+%加速度センサの感度
+% V2G6 = 0.660 /9.80665; % EH2016用 KXR94-2050
+V2G6 = 0.206 /9.80665; %MMA7361L 6Gモード = v/g v / (g*9.80665)
+nharm = 6;%thdの高調波数
+list1e4 = dir('*.csv');%サンプリングレート10kHzのデータ
+numFiles1e4 = length(list1e4);
+
+list = dir('*.csv');
+numFiles = length(list);
+
+% サンプリングレート1kHzのデータを記録
+if isfolder('1e3')
+    cd '1e3'
+
+    list1e3 = dir('*.csv');%サンプリングレート1kHzのデータ
+
+    numFiles1e3 = length(list1e3);
+    Input_Hz = 0;
+    Input_Vol = 0;
+    filename = 'test';
+    isAscending = true;%昇順か否か
+
+    %入力電圧の周波数を取得し記録（harmfreqで高調波が分かる、その始めの値を利用)
+    %1~8.2Hzはサンプリングレートが1000なので、そのファイルだけ修正
+    %計測順が昇順(1Hz~)に対応
+
+    % データのインポートおよびラベル用データ生成
+    for i = 1:numFiles1e3
+        Mx{i,1}= csvread(list1e3(i).name,21,1,[21,1,10020,4]);
+        % オフセット除去（すべての要素から平均値を引く）
+        Mx{i,2}(:,1) = ( Mx{i,1}(:,1) - mean(Mx{i,1}(:,1)) ) / V2G6; %下に引っ張った時を正に（標準では負）
+        Mx{i,2}(:,2) = ( Mx{i,1}(:,2) - mean(Mx{i,1}(:,2)) ) / V2G6;
+        Mx{i,2}(:,3) = ( Mx{i,1}(:,3) - mean(Mx{i,1}(:,3)) ) / V2G6;
+        Mx{i,2}(:,4) = ( Mx{i,1}(:,4) - mean(Mx{i,1}(:,4)) );
+        [thd_db, harmpow, harmfreq] = thd(Mx{i,1}(:,4), Fs, nharm);
+
+        Mx{i,3} = harmfreq(1,1);
+        Input_Hz = harmfreq(1,1);
+        Mx{i,4} =  rms((Mx{i,2}(:,1))) + rms((Mx{i,2}(:,2)))+rms((Mx{i,2}(:,3)));%3軸RMS値
+        Mx{i,5} = list1e3(i).name;             
+    end
+    cd ..
+else
+    numFiles1e3 = 0;
+end
+Fs = 1e4;%サンプル周波数
+% サンプリングレート10kHzのデータを記録
+for i = 1:numFiles1e4
+    k = i + numFiles1e3;
+%     Mx{k,1}= csvread(list1e4(i).name,21,1,[21,1,3020,3]); %t WTV用temp
+    Mx{k,1}= csvread(list1e4(i).name,21,1,[21,1,10020,4]);
+    % オフセット除去（すべての要素から平均値を引く）
+    Mx{k,2}(:,1) = ( Mx{k,1}(:,1) - mean(Mx{k,1}(:,1)) ) / V2G6; %下に引っ張った時を正に（標準では負）
+    Mx{k,2}(:,2) = ( Mx{k,1}(:,2) - mean(Mx{k,1}(:,2)) ) / V2G6;
+    Mx{k,2}(:,3) = ( Mx{k,1}(:,3) - mean(Mx{k,1}(:,3)) ) / V2G6;
+    if size(Mx{1,1},2) > 3
+        Mx{k,2}(:,4) = ( Mx{k,1}(:,4) - mean(Mx{k,1}(:,4)) );
+        [thd_db, harmpow, harmfreq] = thd(Mx{k,1}(:,4), Fs, nharm);
+        Mx{k,3} = harmfreq(1,1);
+        input_Hz = harmfreq(1,1);
+    end
+    Mx{k,4} =  rms((Mx{k,2}(:,1))) + rms((Mx{k,2}(:,2)))+rms((Mx{k,2}(:,3)));%3軸RMS値
+    Mx{k,5} = list1e4(i).name;
+end
+
 %% wavelet analyze
-% subplot(3,1,1);
-% stackedplot(TT1(:,1));
-% subplot(3,1,2);
-% stackedplot(TT1(:,2));
-% subplot(3,1,3);
-% stackedplot(TT1(:,3));
+close all
+type =  erase(dir('*.txt').name,'.txt');
+
+Fs = 1e3;
+for freq = 1:3
+    if freq == 1
+        axis = 'x';
+    elseif freq == 2
+        axis = 'y';
+    elseif freq == 3
+        axis = 'z';
+    end        
+    for i = 1:size(Mx,1)
+        % 1 ~ 10 Hz の測定を行った時のみ
+        if Mx{i,3} < 9
+            Fs = 1e3;
+            Freq = num2str(round(Mx{i,3},1));
+        else
+%             Fs = 1e4;
+            Fs = 1e3; % EH2016のデータ専用
+            Freq = num2str(round(Mx{i,3}));
+        end
+        y = Mx{i,2}(:,freq);
+        if ~isfolder('wavelet')
+            mkdir('wavelet')
+        end
+        cd wavelet
+        if ~isfolder(axis)
+            mkdir(axis)
+        end
+        cd (axis)
+%         wlplot = waveletPlot(y,Fs,strcat(Freq,' Hz','-', axis,'-',type));
+        locate = num2str(i);
+        wlplot = waveletPlot(y,Fs,strcat(Freq,' Hz','-', axis,'-',type,'-locate-',num2str(i));
+
+        close
+        cd ../..
+        
+    end
+end
+
+%% デバッグ用、1回のみ
+
+% y = Mx{6,1}(:,1);
+% Fs = 1e3;
+% wlplot = waveletPlot(y,Fs,strcat('debug'));
 % 
-% % 連続ウェーブレット変換
-% cwt(TT1(:,1))
-% cwt(TT1(:,2))
-% cwt(TT1(:,3))
-
-%% サブプロット https://jp.mathworks.com/help/wavelet/ref/cwt.html
-% 0117 1,2,3,4,=neck_walk_x, leg_walk_x, arm_gun_x. neck_gun_x
-close all;
-
-% clear;
-% v2_ImportFromTektronix
-% 
-% % Fs = 2500;
-% % vibname = 'Hapbeat';
-% % vibname = 'Haptuator';
-% vibname='';
-% positon = 'neck-'; action = 'walk-';
-% wlplot = waveletPlot(Mx{1,1}(:,1),Fs, strcat(positon, action,'x', vibname));
-% wlplot = waveletPlot(Mx{1,1}(:,2),Fs, strcat(positon, action,'y', vibname));
-% wlplot = waveletPlot(Mx{1,1}(:,3),Fs, strcat(positon, action,'z', vibname));
-% positon = 'leg-'; action = 'walk-';
-% wlplot = waveletPlot(Mx{2,1}(:,1),Fs, strcat(positon, action,'x', vibname));
-% wlplot = waveletPlot(Mx{2,1}(:,2),Fs, strcat(positon, action,'y', vibname));
-% wlplot = waveletPlot(Mx{2,1}(:,3),Fs, strcat(positon, action,'z', vibname));
-% positon = 'arm-'; action = 'gun-';
-% wlplot = waveletPlot(Mx{3,1}(:,1),Fs, strcat(positon, action,'x', vibname));
-% wlplot = waveletPlot(Mx{3,1}(:,2),Fs, strcat(positon, action,'y', vibname));
-% wlplot = waveletPlot(Mx{3,1}(:,3),Fs, strcat(positon, action,'z', vibname));
-% positon = 'neck-'; action = 'gun-';
-% wlplot = waveletPlot(Mx{4,1}(:,1),Fs, strcat(positon, action,'x', vibname));
-% wlplot = waveletPlot(Mx{4,1}(:,2),Fs, strcat(positon, action,'y', vibname));
-% wlplot = waveletPlot(Mx{4,1}(:,3),Fs, strcat(positon, action,'z', vibname));
-
-
-%%
-mpc3008_import
-% Fsはmcp3008_importで定義
-
-t = size(Mx{1,3});
-len = t(1,1);
-% action = 'gun-';
-action = 'walk-';
-
-% gun-neck import
-positon = 'neck-'; 
-y = Mx{1,3}(1000:len-1000,1); axis = 'x';
-wlplot = waveletPlot(y,Fs,strcat(positon,action,axis));
-y = Mx{2,3}(1000:len-1000,1); axis = 'y';
-wlplot = waveletPlot(y,Fs,strcat(positon,action,axis));
-z = Mx{3,3}(1000:len-1000,1); axis = 'z';
-wlplot = waveletPlot(y,Fs,strcat(positon,action,axis));
-
-positon = 'leg-';
-% positon = 'arm-';
-y = Mx{4,3}(1000:len-1000,1); axis = 'x';
-wlplot = waveletPlot(y,Fs,strcat(positon,action,axis));
-y = Mx{5,3}(1000:len-1000,1); axis = 'y';
-wlplot = waveletPlot(y,Fs,strcat(positon,action,axis));
-y = Mx{6,3}(1000:len-1000,1); axis = 'z';
-wlplot = waveletPlot(y,Fs,strcat(positon,action,axis));
 
 %% wavelet変換を行い、グラフを描画する関数。
 function wlplot = waveletPlot(y,Fs,desc) % データ、サンプリングレート,グラフタイトル
@@ -83,32 +139,36 @@ function wlplot = waveletPlot(y,Fs,desc) % データ、サンプリングレー�
     figure('Name',desc,'NumberTitle','off','Position',[0 0 960 540]);
 
 %  解析元信号
-    subplot(2,1,1)
+% subplot(2,1,1)
+    subplot(3,1,1)
     plot(tms,y)
     axis tight
     title(desc)
     xlabel('Time (s)')
-    ylabel('Amplitude')
+    ylabel('Accelaration amplitude (m/s^{2})')
     
 %  cwt結果のスカログラム
-    subplot(2,1,2)
+%  subplot(2,1,2)
+    subplot(3,1,[2,3])
     surface(tms,frq,abs(cfs))
+    colorbar('southoutside')    
     axis tight
     shading flat
     xlabel('Time (s)')
     ylabel('Frequency (Hz)')
     set(gca,'yscale','log')
-    
+    c = colorbar('southoutside'); 
+    c.Label.String = 'Power';
+    ax = gca;
+    ax.TickDir = 'out';
 %   見やすくするため、y軸の範囲を限定（予め絞り込んでから）
 %     ylim([10,100])
 %     yticks([10 20 30 40 50 60 70 80 90 100])
-    ax = gca;
-    ax.TickDir = 'out';
     wlplot = 'null';
-    savefig(desc);
-    saveas(gcf,strcat(desc,'.png'));
+    fileName = replace(desc,'.','r');% ファイル名に . が入るのを阻止
+    savefig(fileName);
+    saveas(gcf,strcat(fileName,'.png')); 
 end
-
 %% 全てのデータを一枚にプロット（アーカイブ）
 % 最初は楽だが、その後データを動かしたりするときに不便。また重い。
 % 

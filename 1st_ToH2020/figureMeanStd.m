@@ -111,9 +111,6 @@ for i = 1:size(RMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
 end
 
 % 平均値出すだけならここまで
-
-
-
 %% マーカー（緑）の位置を配置
     % ラベル描画関連
     img_list = dir('./img/*.png');

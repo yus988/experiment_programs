@@ -7,7 +7,7 @@ clear
 Mx = cell(1,1);
 cellResult = cell(zeros(1));
 
-for cd_times = 1:6
+for cd_times = 1:5
     %% フォルダの移動
     if cd_times == 1
         folderName = '1Hapbeat_Housing';
@@ -18,7 +18,7 @@ for cd_times = 1:6
     elseif cd_times == 4
         folderName =  '4Hapbeat_Back';
     elseif cd_times == 5
-        folderName =  '5Vp2_direct';
+        folderName =  '5Vp2_Housing';
     elseif cd_times == 6
         folderName =  '6Vp2_1cm';
     end
@@ -109,7 +109,7 @@ end % for cd_times = 1:6 の終わり
 cellPlot = cell(1,1); % freq mean std
 tmp = zeros(1,1);
 
-for posLoop = 1:6
+for posLoop = 1:5
     for i = 1 : size(cellResult{posLoop,1},1)
         for exeLoop = 1:3
             tmp(exeLoop,1) =  cellResult{posLoop,exeLoop}(i,2);
@@ -125,7 +125,7 @@ end
 
 close all
 
-for i = 1:6
+for i = 1:5
     tmp = sortrows(cellPlot{i,1});
     if i == 1  %'Hapbeat enclosure';
         markerColor = 'red';
@@ -155,6 +155,8 @@ for i = 1:6
 end
 % 軸の調整
 set(gca,'XScale','log')
+set(gca,'YScale','log')
+
 labelFont = 24;
 xticklabels('manual');
 xticklabels({[1 10  100 1000]});
@@ -163,21 +165,19 @@ ax.FontSize = labelFont;
 ax.XAxis.TickDirection  = 'out';
 ax.XAxis.TickLength = [0.04 0.0];
 hline = refline([0 10]);
-
+xlim([0 300])
 % ax.YLim = [0 11];
 % ax.YAxis.TickValues = [0:11];
 % ax.XAxis.TickValues = [1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800 900 1000];
 
 xlabel('Frequency (Hz)','FontSize',labelFont)
-ylabel('Acceleration amplitude (m/s^{2})','FontSize',labelFont)
-
+ylabel('RMS value of acceleration (m/s^{2})','FontSize',labelFont)
 
 grid on
 TickDir = 'out';
 
 % legend(legendArray)
-legend('Hapbeat housing','Hapbeat front','Hapbeat side','Hapbeat back','Vp2 enclosure','Vp2 1cm apart')
-
+legend('Hapbeat housing','Hapbeat front','Hapbeat side','Hapbeat back','Vp2 housing')
 
 %     if cd_times == 1
 %             folderName = 'Hapbeat本体';
@@ -191,7 +191,6 @@ legend('Hapbeat housing','Hapbeat front','Hapbeat side','Hapbeat back','Vp2 encl
 %             folderName =  'Vp2本体';
 %     elseif cd_times == 6
 %             folderName =  'Vp2-1cm';
-
 
 % semilogx(graphCell{1,1}(:,1),graphCell{1,1}(:,2), ...
 %     graphCell{2,1}(:,1),graphCell{2,1}(:,2), ...

@@ -1,13 +1,10 @@
-%%人体の各点の加速度測定時のファイル分け用スクリプト
-% % 実験1定量評価・周波数応答のグラフの作成に使用
-%%入力電圧と周波数から40/160Hz_0.5/1/2Wに分類
 % ルートフォルダで実行■1定量実験\0422Hapbeat重さ実験\Back
 
 clear
 Mx = cell(1,1);
 cellResult = cell(zeros(1));
 
-for cd_times = 1:5
+for cd_times = 1:7
     %% フォルダの移動
     if cd_times == 1
         folderName = '0g';
@@ -18,6 +15,10 @@ for cd_times = 1:5
     elseif cd_times == 4
         folderName =  '60g';
     elseif cd_times == 5
+        folderName =  '80g';
+    elseif cd_times == 6
+        folderName =  '100g';
+    elseif cd_times == 7
         folderName =  '120g';
     end
     cd (folderName);
@@ -60,7 +61,7 @@ end % for cd_times = 1:6 の終わり
 %%
 tmpArr = zeros(1,1); % 1:20Hz-0W, 2:20Hz-1W, 3:20Hz-2W 4:80Hz-1W, 5:80Hz-1W
 arrPlot = zeros(1,1);
-for typeLoop = 1:5
+for typeLoop = 1:7 % 重さの種類分回す
     arrTar = cellResult{typeLoop,1};
     for i = 1 : size(cellResult{1,1},1)
         if arrTar(i,1) > 19 && arrTar(i,1) < 21
@@ -79,6 +80,7 @@ for typeLoop = 1:5
     end
     tmpArr = sort(tmpArr,'descend');
     for k = 1:5
+%       meat, std の順で並べる
         arrPlot(typeLoop, 2*k-1) = mean(tmpArr((1:3),k)); 
         arrPlot(typeLoop,2*k) = std(tmpArr((1:3),k));
     end
@@ -89,7 +91,9 @@ end
 close all
 
 figure
-mass = [0 20 40 60 120];
+% mass = [0 20 40 60 80 100 120];
+mass = [58.5 78.5 98.5 118.5 138.5 158.5 178.5];
+
 hold on
 for k = 1:5
     if k == 1
@@ -110,13 +114,17 @@ for k = 1:5
 end
 legend('20 Hz - 0.5 W', '20 Hz - 1 W', '20 Hz - 2 W', '80 Hz - 1 W', '140 Hz - 1 W');
 hold off
-xlabel('Weight mass (g)')
+xlabel('Housing mass (g)')
 ylabel('RMS value of triaxial acceleration (m/s^{2})')
 ax = gca;
-ax.YLim = [0 45];
+ax.XLim = [58.5 180];
+ax.YLim = [0 70];
+
 set(gca,'FontSize',15)
 saveas(gca,'figure.fig');
-%     
+
+
+
 % %% グラフ描画用のcell作成（平均、標準偏差）
 % 
 % cellPlot = cell(1,1); % freq mean std
