@@ -87,6 +87,7 @@ end
 save;
 
 
+
 %% パワースペクトラム
 close all
 type =  erase(dir('*.txt').name,'.txt');
@@ -115,24 +116,80 @@ for axisInt = 1:3
         if ~isfolder('powerSpectrum')
             mkdir('powerSpectrum')
         end
-        cd powerSpectrum
+%         cd powerSpectrum
+        
         if ~isfolder(axisStr)
             mkdir(axisStr)
         end
 %         cd (axisStr)
         locate = num2str(i);
         acc = Mx{i,2}(:,axisInt); 
-        TT = dispPowerSpectrum(acc,Fs,axisStr,freqNum,strcat(freqStr,' Hz','-', axisStr,'-',type,'-locate-',locate));
-
+        TT = dispPowerSpectrum(acc,Fs,freqNum,strcat(freqStr,' Hz','-', axisStr,'-',type,'-locate-',locate));
 %         TT = Mx{i,6}(:,freq);
-%        powerSpectrumPlot(TT,Fs,axis,strcat(Freq,' Hz','-', axis,'-',type,'-locate-',locate));
+        % desc = strcat(Freq,' Hz','-', axis,'-',type,'-locate-',locate);
+%        powerSpectrumPlot(TT,Fs,axis,desc);
+%         fileName = replace(desc,'.','r');% ファイル名に . が入るのを阻止
+%         savefig(fileName);
+%         saveas(gcf,strcat(fileName,'.png'));
+
         close
 %         cd ../..
         
     end
 end
 
-%% 加速度、速さ、変位の波形とパワースペクトラム表示する関数
+%% 切り出し
+
+% figure
+% findpeaks(y,Fs,'MinPeakHeight',rms(y),'MinPeakDistance',minPeakDistance)
+diff = zeros(size(pks(:,1),1),1);
+
+% 周期の半分の時間をピークが被らない値とし、（各周期ごとの最大値）
+% rms値以上の値をピークとして求める。
+minPeakDistance = (1/input_Hz) /2 *Fs;
+[pks(:,2) pks(:,1)] = findpeaks(y,'MinPeakHeight',rms(y),'MinPeakDistance',minPeakDistance)
+
+% ピーク一つずつに対して、最小となるピーク対を探す。
+for i = 1: size(pks(:,1),1)
+    omit = pks;
+    omit(i,:) =zeros(1,size(pks(:,1),2)); % pksから比較元の値（i番目のピーク）を削除する。
+    [pks(i,3), pks(i,4)] = knnsearch(omit(:,2),pks(i,2)); % i番目のピークと最も差が小さいピークを見つける
+end
+% pks 1列目：ピークの時の測定点、2列目：ピークの値、3列目：ピーク対の相手番地、4列目：ピーク差
+
+[M, I] = min(pks(:,4)); % 格納したピーク差のうち最も小さいモノを探す
+minTime = pks(I,1); % 抽出したピーク対のうち小さい方の時間
+maxTime = pks(pks(I,3),1);
+
+yExtr = y(minTime:maxTime,1);
+figure
+plot(yExtr)
+
+
+
+%% FFTした結果をプロットする関数
+function pfReturn = plotFFT(y,Fs,freq,desc) % データ、サンプリングレート,グラフタイトル
+L = 1e4;             % Length of signal
+% Fs = 1e4;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period       
+t = (0:L-1)*T;        % Time vector
+
+% y=Mx{1,2}(:,1); % 生の波形
+Y=fft(y); % fft
+
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+f = Fs*(0:(L/2))/L;
+stem(f,P1,'filled','MarkerSize',4) 
+xlim([0 300])
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+end
+
+%% 加速度、速さ、変位の波形とパワースペクトラム表示試し用
 % Fs = 1e3;
 % % x = 0:1/Fs:9.9999;
 % % acc = Mx{6,2}(:,1);
@@ -144,15 +201,17 @@ end
 % filtFreq = 33/2;
 
 % 試し用
-disp = cumtrapz(1/Fs,cumtrapz(1/Fs,y));
-acc = y;
-vel = cumtrapz(1/Fs,y);
-vel = vel - mean(vel);
-disp = cumtrapz(1/Fs,vel);
-plot(disp);
-TT = timetable(acc,vel,disp,'SampleRate',Fs);
+% disp = cumtrapz(1/Fs,cumtrapz(1/Fs,y));
+% acc = y;
+% vel = cumtrapz(1/Fs,y);
+% vel = vel - mean(vel);
+% disp = cumtrapz(1/Fs,vel);
+% plot(disp);
+% TT = timetable(acc,vel,disp,'SampleRate',Fs);
 
-function dispPS = dispPowerSpectrum(acc,Fs,jiku,freq,desc) % データ、サンプリングレート,グラフタイトル
+%% 加速度、速さ、変位の波形とパワースペクトラム表示する関数
+
+function dispPS = dispPowerSpectrum(acc,Fs,freq,desc) % データ、サンプリングレート,グラフタイトル
 % filtFreq = freq - freq / 10;
 filtFreq = freq / 2;
 if Fs == 1e4 
@@ -210,7 +269,7 @@ end
 dis = cumtrapz(1/Fs,vel);
 % dis = detrend(dis);
 % dis = dis-mean(dis);
-dis = highpass(dis,filtFreq,Fs,'Steepness',0.9999,'StopbandAttenuation',60);
+% dis = highpass(dis,filtFreq,Fs,'Steepness',0.9999,'StopbandAttenuation',60);
 plot(x,dis)
 title(strcat('Disp Wave-',desc));
 grid on
@@ -259,9 +318,6 @@ title(strcat('Disp PS-',desc));
 xlim([xMin xMax])
 grid on
 
-fileName = replace(desc,'.','r');% ファイル名に . が入るのを阻止
-savefig(fileName);
-saveas(gcf,strcat(fileName,'.png'));
 
 dispPS = TT;
 
