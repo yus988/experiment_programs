@@ -72,6 +72,9 @@ for i = 1:numFiles1e4
         Mx{k,2}(:,4) = ( Mx{k,1}(:,4) - mean(Mx{k,1}(:,4)) );
         [thd_db, harmpow, harmfreq] = thd(Mx{k,1}(:,4), Fs, nharm);
         Mx{k,3} = harmfreq(1,1);
+        Mx{k,7} = thd_db(1,1);
+        Mx{k,8} = harmpow(1,1);
+
         input_Hz = harmfreq(1,1);
     end
     Mx{k,4} =  rms((Mx{k,2}(:,1))) + rms((Mx{k,2}(:,2)))+rms((Mx{k,2}(:,3)));%3軸RMS値
@@ -83,17 +86,17 @@ for i = 1:numFiles1e4
     Mx{k,6}.Properties.VariableNames{'Var3'}='z' ;
     
 end
-
 save;
 
-
-
-%% パワースペクトラム
+%% FFT 一括表示＆保存
 close all
 type =  erase(dir('*.txt').name,'.txt');
 
+enableCD = true;
+% enableCD = false; % for debug
+
 Fs = 1e3;
-for axisInt = 1:3
+for axisInt = 1:3 % 軸の種類
     if axisInt == 1
         axisStr = 'x';
     elseif axisInt == 2
@@ -101,7 +104,7 @@ for axisInt = 1:3
     elseif axisInt == 3
         axisStr = 'z';
     end
-    for i = 1:size(Mx,1)
+    for i = 1:size(Mx,1) % 行列方向、周波数別のデータ
         freqNum = Mx{i,3};
         % 1 ~ 10 Hz の測定を行った時のみ
         if freqNum < 9
@@ -109,45 +112,85 @@ for axisInt = 1:3
             freqStr = num2str(round(Mx{i,3},1));
         else
             Fs = 1e4;
-%                         Fs = 1e3; % EH2016のデータ専用
+            %                         Fs = 1e3; % EH2016のデータ専用
             freqStr = num2str(round(Mx{i,3}));
         end
-        y = Mx{i,2}(:,axisInt);
-        if ~isfolder('powerSpectrum')
-            mkdir('powerSpectrum')
+        if ~isfolder('FFT')
+            mkdir('FFT')
         end
-%         cd powerSpectrum
         
-        if ~isfolder(axisStr)
-            mkdir(axisStr)
-        end
-%         cd (axisStr)
-        locate = num2str(i);
-        acc = Mx{i,2}(:,axisInt); 
-        TT = dispPowerSpectrum(acc,Fs,freqNum,strcat(freqStr,' Hz','-', axisStr,'-',type,'-locate-',locate));
-%         TT = Mx{i,6}(:,freq);
-        % desc = strcat(Freq,' Hz','-', axis,'-',type,'-locate-',locate);
-%        powerSpectrumPlot(TT,Fs,axis,desc);
-%         fileName = replace(desc,'.','r');% ファイル名に . が入るのを阻止
-%         savefig(fileName);
-%         saveas(gcf,strcat(fileName,'.png'));
+        % acc,vel,disを計算 
+        acc = Mx{i,2}(:,axisInt); %加速度データ
+        acc = acc - mean(acc);
+        vel = cumtrapz(1/Fs,acc);
+        vel = vel-mean(vel); 
+        dis = cumtrapz(1/Fs,vel);
 
-        close
-%         cd ../..
-        
+        for mode = 1:1 % 加速度、速度、変位のループ
+            if mode == 1
+                modeStr = 'acc';
+                y = acc;
+            elseif mode == 2
+                modeStr = 'vel';
+                y = vel;
+            elseif mode == 3
+                modeStr = 'dis';
+                y = dis;
+            end
+            
+                    % FFTフォルダの中でacc,vel,disを作る。
+            if(enableCD == true)
+                cd FFT
+                if ~isfolder(modeStr)
+                    mkdir(modeStr)
+                end          
+            end
+            
+            % 各モードフォルダの中でx,y,zを作る。
+            if(enableCD == true)
+                cd(modeStr)
+                if ~isfolder(axisStr)
+                mkdir(axisStr)
+                end
+                cd (axisStr)
+            end
+           
+            Freq = Mx{i,3};
+            locate = num2str(i);
+            desc = strcat(freqStr,' Hz','-',axisStr,'-',modeStr,'-locate-',locate);
+            %       関数
+            plotFFT(y,Fs,Freq,desc);
+            fileName = replace(desc,'.','r');% ファイル名に . が入るのを阻止
+
+            % グラフを保存して元のフォルダに戻る。
+            if(enableCD == true)
+                savefig(fileName);
+                saveas(gcf,strcat(fileName,'.png'));
+                cd ../../..
+            end
+            close
+
+        end
     end
 end
 
-%% 切り出し
+%% FFTした結果をプロットする関数
 
-% figure
-% findpeaks(y,Fs,'MinPeakHeight',rms(y),'MinPeakDistance',minPeakDistance)
-diff = zeros(size(pks(:,1),1),1);
+% minPeakDistance = (1/freq) /2 *Fs;
+% [pks(:,2) pks(:,1)] = findpeaks(y,'MinPeakHeight',rms(y),'MinPeakDistance',minPeakDistance);
+
+function pfReturn = plotFFT(y,Fs,freq,desc) % データ、サンプリングレート,グラフタイトル
+% 切り出し
+% %検算用変数定義
+% i = 4; axisInt=1;
+% y = Mx{i,2}(:,axisInt);
+% freq = Mx{i,3}(:,axisInt);
+% Fs = 1e4;
 
 % 周期の半分の時間をピークが被らない値とし、（各周期ごとの最大値）
 % rms値以上の値をピークとして求める。
-minPeakDistance = (1/input_Hz) /2 *Fs;
-[pks(:,2) pks(:,1)] = findpeaks(y,'MinPeakHeight',rms(y),'MinPeakDistance',minPeakDistance)
+minPeakDistance = (1/freq) /2 *Fs;
+[pks(:,2), pks(:,1)] = findpeaks(y,'MinPeakHeight',rms(y),'MinPeakDistance',minPeakDistance);
 
 % ピーク一つずつに対して、最小となるピーク対を探す。
 for i = 1: size(pks(:,1),1)
@@ -160,32 +203,53 @@ end
 [M, I] = min(pks(:,4)); % 格納したピーク差のうち最も小さいモノを探す
 minTime = pks(I,1); % 抽出したピーク対のうち小さい方の時間
 maxTime = pks(pks(I,3),1);
-
 yExtr = y(minTime:maxTime,1);
-figure
-plot(yExtr)
 
-
-
-%% FFTした結果をプロットする関数
-function pfReturn = plotFFT(y,Fs,freq,desc) % データ、サンプリングレート,グラフタイトル
-L = 1e4;             % Length of signal
-% Fs = 1e4;            % Sampling frequency                    
-T = 1/Fs;             % Sampling period       
+%グラフに必要な変数
+% L = 1e4;             % Length of signal
+L = size(yExtr,1); %切り取った信号のデータ数
+T = 1/Fs;             % Sampling period
 t = (0:L-1)*T;        % Time vector
+% tlim = t(1, minTime:maxTime);
+labelFont = 12;
 
+figure('Name',desc,'NumberTitle','off','Position',[10 10 1440 720]);
+subplot(2,1,1)
+plot(t,yExtr)
+% plot(t,y)
+xlabel('Time (s)')
+ylabel('Accelaration amplitude (m/s^{2})')
+title(desc)
+set(gca,'box','off') 
+ax = gca; % current axes
+ax.FontSize = labelFont;
+
+
+% Plot Figure % figure
+subplot(2,1,2)
 % y=Mx{1,2}(:,1); % 生の波形
-Y=fft(y); % fft
+% Y=fft(y); % fft
+Y=fft(yExtr); % fft
 
 P2 = abs(Y/L);
 P1 = P2(1:L/2+1);
 P1(2:end-1) = 2*P1(2:end-1);
 f = Fs*(0:(L/2))/L;
-stem(f,P1,'filled','MarkerSize',4) 
-xlim([0 300])
+stem(f,P1,'filled','MarkerSize',4)
 title('Single-Sided Amplitude Spectrum of X(t)')
 xlabel('f (Hz)')
 ylabel('|P1(f)|')
+set(gca,'xscale','log')
+% ax.XAxis.TickLength = [0.04 0.0];
+set(gca,'box','off') 
+ax = gca;
+ax.XAxisLocation = 'bottom';
+ax.XAxis.TickDirection  = 'out';
+ax.XAxis.TickLength = [0.02 0.0];
+ax.FontSize = labelFont;
+xlim([1 300])
+grid on 
+
 
 end
 
@@ -209,8 +273,9 @@ end
 % plot(disp);
 % TT = timetable(acc,vel,disp,'SampleRate',Fs);
 
-%% 加速度、速さ、変位の波形とパワースペクトラム表示する関数
 
+
+%% 加速度、速さ、変位の波形とパワースペクトラム表示する関数
 function dispPS = dispPowerSpectrum(acc,Fs,freq,desc) % データ、サンプリングレート,グラフタイトル
 % filtFreq = freq - freq / 10;
 filtFreq = freq / 2;
@@ -316,6 +381,7 @@ ylabel('Power Spectrum (dB)')
 set(gca,'xscale','log')
 title(strcat('Disp PS-',desc));
 xlim([xMin xMax])
+
 grid on
 
 
@@ -355,9 +421,6 @@ fileName = replace(desc,'.','r');% ファイル名に . が入るのを阻止
 savefig(fileName);
 saveas(gcf,strcat(fileName,'.png'));
 end
-
-
-
 
 %% wavelet analyze 使用する際は関数より上のセクションに移動
 % close all

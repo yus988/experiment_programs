@@ -11,7 +11,7 @@ cd_times = 1; % ディレクトリを動いた回数
 actType =  dir('*.txt'); % vp2.txt or hapbeat.txt
 arrMeanStd = zeros(1,2); % spreadsheetに張り付ける用の、mean,stdをまとめた行列。
 maxLoops = 3; % 何回ループさせるか。
-% maxLoops = 5; % 何回ループさせるか。
+maxLoops = 6; % 何回ループさせるか。
 
 isHapbeat = isempty(actType) || ~strcmp(actType.name,'vp2.txt'); %Hapeatの場合
 
@@ -19,16 +19,30 @@ isHapbeat = isempty(actType) || ~strcmp(actType.name,'vp2.txt'); %Hapeatの場�
 
 %% 生データを集計
 for whole_times = 1:maxLoops
+%     if whole_times == 1
+%         cd '1';
+%     elseif whole_times == 2
+%         cd '2';
+%     elseif whole_times == 3
+%         cd '3';
+%     elseif whole_times == 4
+%         cd '4';
+%     elseif whole_times == 5
+%         cd '5';
+%     end
+    
     if whole_times == 1
-        cd '1';
+        cd 'sub1';
     elseif whole_times == 2
-        cd '2';
+        cd 'sub2';
     elseif whole_times == 3
-        cd '3';
+        cd 'sub3';
     elseif whole_times == 4
-        cd '4';
+        cd 'sub4';
     elseif whole_times == 5
-        cd '5';
+        cd 'sub5';
+    elseif whole_times == 6
+        cd 'sub6';
     end
 %     Sort_by_Input2080140_0512
     
