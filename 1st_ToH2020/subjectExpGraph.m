@@ -77,10 +77,11 @@ save;
 
 %% 参加者全員分のデータを測定点ごとにまとめる
 
-ylimMax=70;
+% ylimMax=60; 
+ylimMax=70; % 80, 140Hz
 
-clothType = 'T-shirt';
-% clothType = "Dress-shirt";
+% clothType = 'T-shirt';
+clothType = "Dress-shirt";
 
 GraphCell = cell(1,1); % {行：列}＝測定点#：信号の種類, (行：列)=測定点：人
 close all
@@ -95,10 +96,37 @@ for sigType = 1:5
     end
 end
 
+skinGraphCell=GraphCell;
+for i=1:5
+    skinGraphCell{i,1}(5,:)=[];
+    skinGraphCell{i,1}(5,:)=[];
+end
+
+save;
+
+
+%% matをロードしてグラフの描画はここから
 
 for sigType = 1:5
+    
     figure
-    bar(GraphCell{sigType,1})
+    ax = gca; % current axes
+    
+%     % 完全版
+%     bar(GraphCell{sigType,1})
+%     ax.XTick = 0:1:size(RMS_Cell{1,1},1);
+%     %         前面
+% %         width = 1440;
+%     %         側面・背面
+%     width = 960;
+%     height =540;
+    
+    % 皮膚上のみ
+        bar(skinGraphCell{sigType,1})%
+        ax.XTick = 0:1:size(RMS_Cell{1,1},1);
+       xticklabels({'1','2','3','4','7'})
+        width = 540;
+        height =540;
 
     if(strcmp(locate.name,'front.txt'))
         locateText = 'Front'; 
@@ -120,20 +148,17 @@ for sigType = 1:5
         signalText = '140Hz-1W';
     end
     
-    
     % この時点ではcell型
     titleText = strcat(clothType,'-',locateText,'-',signalText);
-    
-    ax = gca; % current axes
-    ax.XTick = 0:1:size(RMS_Cell{1,1},1);
     ax.FontSize=24;
 
     legend('sub1','sub2','sub3','sub4','sub5','sub6');
     title(titleText)
+%  title('Dress-shirt-Back-20Hz-0.5W')
+ 
     xlabel('Number of measuring point')
     ylabel('RMS value of acceleration (m/s^{2})')
-    width =960;
-    height =540;
+ 
     ax.YLim = [0 ylimMax];
 %     hline = refline([0 10]);
     set(gcf,'position',[0,0,width,height])

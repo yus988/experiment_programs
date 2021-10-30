@@ -87,8 +87,9 @@ for i = 1:numFiles
     Mx{i,9+3*k} =Mx{i,7+3*0} + Mx{i,7+3*1} + Mx{i,7+3*2};
     RMS_column(i,4) = Mx{i,9+3*k};
     
+%     TT= timetable(Mx{i,2}(:,1), Mx{i,2}(:,2), Mx{i,2}(:,3),Mx{i,2}(:,4),'SampleRate',Fs);
     % timetable を各列ごとに追加
-    Mx{i,3} = timetable(Mx{i,2}(:,1), Mx{i,2}(:,2), Mx{i,2}(:,3),'SampleRate',Fs);
+    Mx{i,3} = timetable(Mx{i,2}(:,1), Mx{i,2}(:,2), Mx{i,2}(:,3),Mx{i,2}(:,4),'SampleRate',Fs);
     Mx{i,3}.Properties.VariableNames{'Var1'}='x' ;
     Mx{i,3}.Properties.VariableNames{'Var2'}='y' ;
     Mx{i,3}.Properties.VariableNames{'Var3'}='z' ;
@@ -97,7 +98,7 @@ for i = 1:numFiles
     labels_z(i,1) = round(Mx{i, 13}, 3,'significant');
     labels_sum(i,1) = round(Mx{i, 15}, 3,'significant');
 end
-%% 行末に説明を追加
+% 行末に説明を追加
 Mx{i+1,1} = '生データ';
 Mx{i+1,2} = 'オフセット除去後';
 Mx{i+1,3} = 'タイムテーブル';
@@ -109,6 +110,9 @@ for k=0:2
     Mx{i+1,8+3*k} = strcat('ch', num2str(k+1), 'THD');
 end
 Mx{i+1,15} = '3軸RMS値';
+
+save;
+
 %% マーカー（緑）の位置に実験結果を図示
 
 % ラベル描画関連

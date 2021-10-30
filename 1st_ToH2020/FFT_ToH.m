@@ -2,6 +2,7 @@
 % csvファイルが入っているフォルダで実行
 
 
+
 %% 以下各測定結果ファイルごとの処理
 clear
 Mx = cell(1,1);
@@ -72,18 +73,18 @@ for i = 1:numFiles1e4
         Mx{k,2}(:,4) = ( Mx{k,1}(:,4) - mean(Mx{k,1}(:,4)) );
         [thd_db, harmpow, harmfreq] = thd(Mx{k,1}(:,4), Fs, nharm);
         Mx{k,3} = harmfreq(1,1);
-        Mx{k,7} = thd_db(1,1);
-        Mx{k,8} = harmpow(1,1);
+        Mx{k,4} = thd_db(1,1);
+        Mx{k,5} = harmpow(1,1);
 
         input_Hz = harmfreq(1,1);
     end
-    Mx{k,4} =  rms((Mx{k,2}(:,1))) + rms((Mx{k,2}(:,2)))+rms((Mx{k,2}(:,3)));%3軸RMS値
-    Mx{k,5} = list1e4(i).name;
+    Mx{k,6} =  rms((Mx{k,2}(:,1))) + rms((Mx{k,2}(:,2)))+rms((Mx{k,2}(:,3)));%3軸RMS値
+    Mx{k,7} = list1e4(i).name;
     
-    Mx{k,6} = timetable(Mx{k,2}(:,1), Mx{k,2}(:,2), Mx{k,2}(:,3),'SampleRate',Fs);
-    Mx{k,6}.Properties.VariableNames{'Var1'}='x' ;
-    Mx{k,6}.Properties.VariableNames{'Var2'}='y' ;
-    Mx{k,6}.Properties.VariableNames{'Var3'}='z' ;
+    Mx{k,8} = timetable(Mx{k,2}(:,1), Mx{k,2}(:,2), Mx{k,2}(:,3),'SampleRate',Fs);
+    Mx{k,8}.Properties.VariableNames{'Var1'}='x' ;
+    Mx{k,8}.Properties.VariableNames{'Var2'}='y' ;
+    Mx{k,8}.Properties.VariableNames{'Var3'}='z' ;
     
 end
 save;
@@ -174,6 +175,39 @@ for axisInt = 1:3 % 軸の種類
     end
 end
 
+
+%% 主成分分析
+
+close all
+i=4; % 側面中央
+acc=Mx{i,2}; 
+acc(:,4)=[]; % 入力電圧の列を削除
+% 主成分分析
+[coeff,score,latent,tsquared,explained,mu] = pca(acc);
+
+pcaAxis = acc*coeff(:,1);
+
+plotFFT(pcaAxis,1e4,10,'Measured Prncipal-Axis Acceleration Signal from 20 Hz Sine Wave Input');
+savefig('resultForPaper');
+
+CT = timetable(pcaAxis,'SampleRate',Fs);
+
+%% 論文画像生成用 (20Hz Side)
+close all
+i=4; % 側面中央
+acc = Mx{i,2}(:,1); %加速度データ x
+acc = acc - mean(acc);
+plotFFT(acc,1e4,10,'Measured X-axis Acceleration Signal from 10 Hz Sine Wave Input');
+savefig('resultForPaper');
+
+%% 論文画像生成用 (20Hz Back)
+close all
+i=3; % 背面中央
+acc = Mx{i,2}(:,3); %加速度データ z
+acc = acc - mean(acc);
+plotFFT(acc,1e4,10,'Measured z-axis Acceleration Signal from 10 Hz Sine Wave Input');
+savefig('resultForPaper');
+
 %% FFTした結果をプロットする関数
 
 % minPeakDistance = (1/freq) /2 *Fs;
@@ -211,14 +245,14 @@ L = size(yExtr,1); %切り取った信号のデータ数
 T = 1/Fs;             % Sampling period
 t = (0:L-1)*T;        % Time vector
 % tlim = t(1, minTime:maxTime);
-labelFont = 12;
+labelFont = 18;
 
-figure('Name',desc,'NumberTitle','off','Position',[10 10 1440 720]);
+figure('Name',desc,'NumberTitle','off','Position',[10 10 960 540]);
 subplot(2,1,1)
 plot(t,yExtr)
 % plot(t,y)
 xlabel('Time (s)')
-ylabel('Accelaration amplitude (m/s^{2})')
+ylabel('Accelaration (m/s^{2})')
 title(desc)
 set(gca,'box','off') 
 ax = gca; % current axes
@@ -236,9 +270,9 @@ P1 = P2(1:L/2+1);
 P1(2:end-1) = 2*P1(2:end-1);
 f = Fs*(0:(L/2))/L;
 stem(f,P1,'filled','MarkerSize',4)
-title('Single-Sided Amplitude Spectrum of X(t)')
-xlabel('f (Hz)')
-ylabel('|P1(f)|')
+title('Single-Sided Amplitude Spectrum of Acceleration Signal')
+xlabel('Frequency (Hz)')
+ylabel('Amplitude Spectrum')% 単位は(m/s)
 set(gca,'xscale','log')
 % ax.XAxis.TickLength = [0.04 0.0];
 set(gca,'box','off') 

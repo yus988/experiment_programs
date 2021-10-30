@@ -58,6 +58,8 @@ for cd_times = 1:7
     cd ..
 end % for cd_times = 1:6 ÇÃèIÇÌÇË
 
+save;
+
 %%
 tmpArr = zeros(1,1); % 1:20Hz-0W, 2:20Hz-1W, 3:20Hz-2W 4:80Hz-1W, 5:80Hz-1W
 arrPlot = zeros(1,1);
@@ -112,15 +114,18 @@ for k = 1:5
        'Color',lineColor,'LineWidth',1, ... 
        'Marker','o', 'MarkerSize',4,'MarkerFaceColor',lineColor);
 end
-legend('20 Hz - 0.5 W', '20 Hz - 1 W', '20 Hz - 2 W', '80 Hz - 1 W', '140 Hz - 1 W');
+legend('20Hz-0.5W', '20Hz-1W', '20Hz-2W', '80Hz-1W', '140Hz-1W');
 hold off
 xlabel('Housing mass (g)')
 ylabel('RMS value of triaxial acceleration (m/s^{2})')
 ax = gca;
-ax.XLim = [58.5 180];
+ax.XLim = [58.5 178.5];
+
+xticks([58.5 78.5 98.5 118.5 138.5 158.5 178.5])
 ax.YLim = [0 70];
 
-set(gca,'FontSize',15)
+set( gca, 'FontName','Tahoma','FontSize',15 ); 
+
 saveas(gca,'figure.fig');
 
 
