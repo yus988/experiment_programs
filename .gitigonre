@@ -29,3 +29,6 @@ codegen/
 
 # Octave session info
 octave-workspace
+
+# ignore media
+*.mp4 *.wav *.avi
