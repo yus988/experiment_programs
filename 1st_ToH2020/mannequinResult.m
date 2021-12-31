@@ -44,7 +44,6 @@ for cd_times = 1:5
             cd '1e3'
 
             list1e3 = dir('*.csv');%サンプリングレート1kHzのデータ
-
             numFiles1e3 = length(list1e3);
             Input_Hz = 0;
             Input_Vol = 0;

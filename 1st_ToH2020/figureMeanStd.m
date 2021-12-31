@@ -1,4 +1,5 @@
-%%実験結果をimportして図示する。平均と標準偏差が入ったcsvファイルがあるフォルダ中で実行
+%% 被験者実験の実験結果をimportして円形を描くスクリプト（各エリアごと）
+% ★実験データ\■3被験者実験\★MeanStd\Tシャツ\1T_Front で実行
 % 必要データを回数ごとに1,2,3...のようにフォルダを作り、データを格納。1,2,3フォルダの1階層上で実施
 % rootにtxtファイルが必要
 
@@ -19,18 +20,6 @@ isHapbeat = isempty(actType) || ~strcmp(actType.name,'vp2.txt'); %Hapeatの場�
 
 %% 生データを集計
 for whole_times = 1:maxLoops
-%     if whole_times == 1
-%         cd '1';
-%     elseif whole_times == 2
-%         cd '2';
-%     elseif whole_times == 3
-%         cd '3';
-%     elseif whole_times == 4
-%         cd '4';
-%     elseif whole_times == 5
-%         cd '5';
-%     end
-    
     if whole_times == 1
         cd 'sub1';
     elseif whole_times == 2
