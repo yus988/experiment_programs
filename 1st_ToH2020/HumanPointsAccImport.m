@@ -113,222 +113,226 @@ Mx{i+1,15} = '3軸RMS値';
 
 save;
 
+%%  %%%%%%%  以下、図示しないなら不要 %%%%%%%
+
 %% マーカー（緑）の位置に実験結果を図示
-
-% ラベル描画関連
-img_list = dir('../img/*.png');
-Underlayer_img = imread('../img/Underlayer.png');
-num_pointArray =  length(img_list)-1 ; %緑マーカの列の数。imgフォルダの画像数から算出
-
-centerOfAnnotation = zeros(num_points, 2);%c_Annotationから中心座標のみ取り出し
-radiulOfCircles = zeros(num_points, 1);
-
-c_Annotation = cell(num_pointArray,1); %描画用マーカー座標を入れるセル
-
-for i=1:num_pointArray
-    img = imread(strcat('../img/', num2str(i), '.png'));
-    % 閾値からマーカーを二値化、重心を求める
-    % greenDetect.mとnoiseReduction.mが必要
-    [BW, masked] = m_greenDetect(img);
-    BW_filtered = m_noiseReduction(BW);
-    % stats = regionprops(BW1_filtered);
-    I = rgb2gray(masked);
-    stats = regionprops(BW_filtered, I ,{'Centroid'});
-    tmp_colmun =zeros(size(stats,1),2) ;
-    for k = 1: size(stats,1)
-        centroids = stats(k).Centroid;
-        tmp_colmun(k,1) = centroids(1,1);
-        tmp_colmun(k,2) = centroids(1,2);
-        % X座標を元にグループ分け、別々の行列に重心座標を代入する
-    end
-    %     Xgを基準に並び替え
-    %     tmp_colmun =  sortrows(tmp_colmun, 1);
-    
-    %     Ygを基準に並び替え
-    tmp_colmun = sortrows(tmp_colmun, 2);
-    c_Annotation{i,1} =tmp_colmun;
-end
-
-
-%% 各軸ごとの加速度の大きさと数値を図示
-% x,y,z,sumを一度の処理で描画する
-%描画のため加速度(g)に掛け合わせる係数
-
-
-% if area == 0
-%     radius_coef = 15;%前面
-% elseif area == 1
-%     radius_coef = 25;%側面
-% elseif area ==2
-%     radius_coef = 25;%側面
+% 
+% % ラベル描画関連
+% img_list = dir('../img/*.png');
+% Underlayer_img = imread('../img/Underlayer.png');
+% num_pointArray =  length(img_list)-1 ; %緑マーカの列の数。imgフォルダの画像数から算出
+% 
+% centerOfAnnotation = zeros(num_points, 2);%c_Annotationから中心座標のみ取り出し
+% radiulOfCircles = zeros(num_points, 1);
+% 
+% c_Annotation = cell(num_pointArray,1); %描画用マーカー座標を入れるセル
+% 
+% for i=1:num_pointArray
+%     img = imread(strcat('../img/', num2str(i), '.png'));
+%     % 閾値からマーカーを二値化、重心を求める
+%     % greenDetect.mとnoiseReduction.mが必要
+%     [BW, masked] = m_greenDetect(img);
+%     BW_filtered = m_noiseReduction(BW);
+%     % stats = regionprops(BW1_filtered);
+%     I = rgb2gray(masked);
+%     stats = regionprops(BW_filtered, I ,{'Centroid'});
+%     tmp_colmun =zeros(size(stats,1),2) ;
+%     for k = 1: size(stats,1)
+%         centroids = stats(k).Centroid;
+%         tmp_colmun(k,1) = centroids(1,1);
+%         tmp_colmun(k,2) = centroids(1,2);
+%         % X座標を元にグループ分け、別々の行列に重心座標を代入する
+%     end
+%     %     Xgを基準に並び替え
+%     %     tmp_colmun =  sortrows(tmp_colmun, 1);
+%     
+%     %     Ygを基準に並び替え
+%     tmp_colmun = sortrows(tmp_colmun, 2);
+%     c_Annotation{i,1} =tmp_colmun;
 % end
-   
-
-% for axis = 0:3
+% 
+% 
+% %% 各軸ごとの加速度の大きさと数値を図示
+% % x,y,z,sumを一度の処理で描画する
+% %描画のため加速度(g)に掛け合わせる係数
+% 
+% 
+% % if area == 0
+% %     radius_coef = 15;%前面
+% % elseif area == 1
+% %     radius_coef = 25;%側面
+% % elseif area ==2
+% %     radius_coef = 25;%側面
+% % end
+%    
+% 
+% % for axis = 0:3
+% %     if axis == 2
+% % %         figure('Name','x')
+% %         target_row = 7;
+% %         labels = labels_x;
+% %     elseif axis == 1
+% % %         figure('Name','y')
+% %         target_row = 10;
+% %         labels = labels_y;
+% %     elseif axis == 0
+% % %         figure('Name','z')
+% %         target_row = 13;
+% %         labels = labels_z;
+% %     elseif axis == 3
+%         figure('Name','sum')
+%         target_row = 15 ;
+%         labels = labels_sum;
+% %     end
+% %     
+% 
+%     Annotation = zeros(num_points, 3); %c_AnnotationのFloat行列, [マーカーのx座標, y座用, 加速度の大きさr]
+%     %viscirclesを使うため、重心と円半径をそれぞれ別の行列に代入
+%     i = 0; %　c_Annotationの数だけ参照行をシフトさせるため
+%     for m = 1:size(c_Annotation,1)
+%         for k = 1: size(c_Annotation{m,1},1)
+%             Annotation(k+i, 1) = c_Annotation{m,1}(k, 1);
+%             Annotation(k+i, 2) = c_Annotation{m,1}(k, 2);
+%             Annotation(k+i, 3) = Mx{k+i, target_row}*radius_coef;
+%         end
+%         i = i + size(c_Annotation{m,1},1);
+%     end
+%     % Mxに格納されているデータを重心＋offsetの位置に描画
+%     %     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+%     %          'FontSize', 30, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
+%     %     imshow(dispFrame)
+%     %
+%     %     % 前面用フォント 適宜調整
+%     
+%  % Annotationの大きさなどを決定
+%  annoColor = 'blue';
+% if area == 0 %前面
+%     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+%     'FontSize', 10, 'LineWidth', 2,'TextBoxOpacity',0, 'color', 'magenta','TextColor', annoColor);
+% elseif area == 1 %側面
+%     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+%     'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', annoColor);
+% elseif area ==2 %背面
+%     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+%     'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', annoColor);
+% end
+%    
+%     
+% %     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+% %         'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
+%     
+% 
+%     imshow(dispFrame,'Border','tight') % border tight を入れることで余白なしに
+%     
+%     % 前面用フォント
+%     %     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
+%     %          'FontSize', 8, 'LineWidth', 3,'TextBoxOpacity',0,'TextColor', 'white');
+%     %     imshow(dispFrame)
+%     
+%     
+%     if target_row == 7
+%         str = 'Xg';
+%     elseif target_row == 10
+%         str = 'Yg';
+%     elseif target_row == 13
+%         str = 'Zg';
+%     elseif target_row == 15
+%         str = 'Sum';
+%     end
+%     %     Sum, x, y, zの表示
+%     %annotationテキストのy座用
+%     
+%     if or(area == 0,area==1) %前面 or 側面
+%                 x_base = 220;
+%                 y_base = 20;
+%                 y_offset = 30;
+%     elseif area == 1 %背面
+%         %         x_base = 240;
+%         %         y_base = 140;
+%         %         y_offset = 30;
+%     end
+%         text(x_base,y_base,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);
+%     %     text(x_base,y_base + y_offset,str,'Color','white','FontSize',20);
+%     
+% % end % for end
+% 
+% saveas(gcf,strcat('sum','.png'));
+% 
+% %% 描画重心と加速度の大きさを示す円を描画するのに使用する行列の準備
+% 
+% % マーカーの中心座標を注釈用float行列に変換（cell形式からfloat行列形式に変えたい）
+% 
+% %% x,y,zの加速度の値を一枚図に描画
+% % radius_coef = 60;%描画のため加速度(g)に掛け合わせる係数
+% 
+% figure
+% % imshow(Underlayer_img); %一回のみ。ループの中に入れると都度初期化される。
+% imshow(Underlayer_img,'Border','tight');
+% 
+% % 円の大きさの注釈（重力加速度：円直径）
+% 
+% annotation_color = 'white';
+% 
+% if area == 0
+%     % 前面 or 側面
+%     %     viscircles([150  400],1 * radius_coef, 'Color',annotation_color);
+%     %     text(130,400,'1G','Color',annotation_color,'FontSize',24);
+%     %     viscircles([150  520],2 * radius_coef, 'Color',annotation_color);
+%     %     text(130,520,'2G','Color',annotation_color,'FontSize',24);
+%     %     viscircles([150  700],3 * radius_coef, 'Color',annotation_color);
+%     %     text(130,700,'3G','Color',annotation_color,'FontSize',24);
+%     
+% elseif area == 1
+%     % 背面
+%     %     viscircles([100  250], 1 * radius_coef, 'Color',annotation_color);
+%     %     text(80,250,'1G','Color',annotation_color,'FontSize',16);
+%     %     viscircles([300 250], 2 * radius_coef, 'Color',annotation_color);
+%     %     text(270,250,'2G','Color',annotation_color,'FontSize',24);
+%     %     viscircles([500  250], 3 * radius_coef, 'Color',annotation_color);
+%     %     text(470,250,'3G','Color',annotation_color,'FontSize',24);
+% end
+% 
+% %annotationテキストのy座用
+% % x_base = 250;
+% % y_base = 20;
+% %ディレクトリにある.txtのファイル名を注釈に利用
+% text(x_base,y_base,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);
+% % text(40,50,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);
+% 
+% for axis = 0:2
+%     %加速度の大きさをlabels行列に代入
 %     if axis == 2
-% %         figure('Name','x')
-%         target_row = 7;
-%         labels = labels_x;
+%         target_row = 7; % x
+%         circleLineColor = '#009C4E'; % x = 緑色
+%         %         text(40,y_base + 1*y_offset,'x = green','Color',circleLineColor,'FontSize',20);
 %     elseif axis == 1
-% %         figure('Name','y')
-%         target_row = 10;
-%         labels = labels_y;
+%         target_row = 10; % y
+%         circleLineColor = '#FFFF00'; % y = 黄色
+%         %         text(40,y_base + 2*y_offset,'y = yellow','Color',circleLineColor,'FontSize',20);
 %     elseif axis == 0
-% %         figure('Name','z')
-%         target_row = 13;
-%         labels = labels_z;
-%     elseif axis == 3
-        figure('Name','sum')
-        target_row = 15 ;
-        labels = labels_sum;
+%         target_row = 13; % z
+%         circleLineColor = '#FFA500'; % z = オレンジ
+%         %         text(40,y_base + 3*y_offset,'z = orange','Color',circleLineColor,'FontSize',20);
 %     end
 %     
+%     %viscirclesを使うため、重心と円半径をそれぞれ別の行列に代入
+%     i = 0;
+%     for m = 1:size(c_Annotation,1)
+%         for k = 1: size(c_Annotation{m,1},1)
+%             centerOfAnnotation(k+i, :) = [c_Annotation{m,1}(k, 1) c_Annotation{m,1}(k, 2)];
+%             radiulOfCircles(k+i, :) = Mx{k+i, target_row}*radius_coef;
+%         end
+%         i = i + size(c_Annotation{m,1},1);
+%     end
+%     
+%     viscircles(centerOfAnnotation, radiulOfCircles,'Color',circleLineColor,'EnhanceVisibility',false,'LineStyle','-','LineWidth',1);
+% end
+% 
+% % text(x_base,y_base,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);
+% saveas(gcf,strcat('xyz','.png'));
 
-    Annotation = zeros(num_points, 3); %c_AnnotationのFloat行列, [マーカーのx座標, y座用, 加速度の大きさr]
-    %viscirclesを使うため、重心と円半径をそれぞれ別の行列に代入
-    i = 0; %　c_Annotationの数だけ参照行をシフトさせるため
-    for m = 1:size(c_Annotation,1)
-        for k = 1: size(c_Annotation{m,1},1)
-            Annotation(k+i, 1) = c_Annotation{m,1}(k, 1);
-            Annotation(k+i, 2) = c_Annotation{m,1}(k, 2);
-            Annotation(k+i, 3) = Mx{k+i, target_row}*radius_coef;
-        end
-        i = i + size(c_Annotation{m,1},1);
-    end
-    % Mxに格納されているデータを重心＋offsetの位置に描画
-    %     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-    %          'FontSize', 30, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
-    %     imshow(dispFrame)
-    %
-    %     % 前面用フォント 適宜調整
-    
- % Annotationの大きさなどを決定
- annoColor = 'blue';
-if area == 0 %前面
-    dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-    'FontSize', 10, 'LineWidth', 2,'TextBoxOpacity',0, 'color', 'magenta','TextColor', annoColor);
-elseif area == 1 %側面
-    dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-    'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', annoColor);
-elseif area ==2 %背面
-    dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-    'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', annoColor);
-end
-   
-    
-%     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-%         'FontSize', 20, 'LineWidth', 3,'TextBoxOpacity',0.4, 'color', 'magenta','TextColor', 'white');
-    
 
-    imshow(dispFrame,'Border','tight') % border tight を入れることで余白なしに
-    
-    % 前面用フォント
-    %     dispFrame = insertObjectAnnotation(Underlayer_img, 'circle', Annotation, labels, ...
-    %          'FontSize', 8, 'LineWidth', 3,'TextBoxOpacity',0,'TextColor', 'white');
-    %     imshow(dispFrame)
-    
-    
-    if target_row == 7
-        str = 'Xg';
-    elseif target_row == 10
-        str = 'Yg';
-    elseif target_row == 13
-        str = 'Zg';
-    elseif target_row == 15
-        str = 'Sum';
-    end
-    %     Sum, x, y, zの表示
-    %annotationテキストのy座用
-    
-    if or(area == 0,area==1) %前面 or 側面
-                x_base = 220;
-                y_base = 20;
-                y_offset = 30;
-    elseif area == 1 %背面
-        %         x_base = 240;
-        %         y_base = 140;
-        %         y_offset = 30;
-    end
-        text(x_base,y_base,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);
-    %     text(x_base,y_base + y_offset,str,'Color','white','FontSize',20);
-    
-% end % for end
-
-saveas(gcf,strcat('sum','.png'));
-
-%% 描画重心と加速度の大きさを示す円を描画するのに使用する行列の準備
-
-% マーカーの中心座標を注釈用float行列に変換（cell形式からfloat行列形式に変えたい）
-
-%% x,y,zの加速度の値を一枚図に描画
-% radius_coef = 60;%描画のため加速度(g)に掛け合わせる係数
-
-figure
-% imshow(Underlayer_img); %一回のみ。ループの中に入れると都度初期化される。
-imshow(Underlayer_img,'Border','tight');
-
-% 円の大きさの注釈（重力加速度：円直径）
-
-annotation_color = 'white';
-
-if area == 0
-    % 前面 or 側面
-    %     viscircles([150  400],1 * radius_coef, 'Color',annotation_color);
-    %     text(130,400,'1G','Color',annotation_color,'FontSize',24);
-    %     viscircles([150  520],2 * radius_coef, 'Color',annotation_color);
-    %     text(130,520,'2G','Color',annotation_color,'FontSize',24);
-    %     viscircles([150  700],3 * radius_coef, 'Color',annotation_color);
-    %     text(130,700,'3G','Color',annotation_color,'FontSize',24);
-    
-elseif area == 1
-    % 背面
-    %     viscircles([100  250], 1 * radius_coef, 'Color',annotation_color);
-    %     text(80,250,'1G','Color',annotation_color,'FontSize',16);
-    %     viscircles([300 250], 2 * radius_coef, 'Color',annotation_color);
-    %     text(270,250,'2G','Color',annotation_color,'FontSize',24);
-    %     viscircles([500  250], 3 * radius_coef, 'Color',annotation_color);
-    %     text(470,250,'3G','Color',annotation_color,'FontSize',24);
-end
-
-%annotationテキストのy座用
-% x_base = 250;
-% y_base = 20;
-%ディレクトリにある.txtのファイル名を注釈に利用
-text(x_base,y_base,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);
-% text(40,50,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);
-
-for axis = 0:2
-    %加速度の大きさをlabels行列に代入
-    if axis == 2
-        target_row = 7; % x
-        circleLineColor = '#009C4E'; % x = 緑色
-        %         text(40,y_base + 1*y_offset,'x = green','Color',circleLineColor,'FontSize',20);
-    elseif axis == 1
-        target_row = 10; % y
-        circleLineColor = '#FFFF00'; % y = 黄色
-        %         text(40,y_base + 2*y_offset,'y = yellow','Color',circleLineColor,'FontSize',20);
-    elseif axis == 0
-        target_row = 13; % z
-        circleLineColor = '#FFA500'; % z = オレンジ
-        %         text(40,y_base + 3*y_offset,'z = orange','Color',circleLineColor,'FontSize',20);
-    end
-    
-    %viscirclesを使うため、重心と円半径をそれぞれ別の行列に代入
-    i = 0;
-    for m = 1:size(c_Annotation,1)
-        for k = 1: size(c_Annotation{m,1},1)
-            centerOfAnnotation(k+i, :) = [c_Annotation{m,1}(k, 1) c_Annotation{m,1}(k, 2)];
-            radiulOfCircles(k+i, :) = Mx{k+i, target_row}*radius_coef;
-        end
-        i = i + size(c_Annotation{m,1},1);
-    end
-    
-    viscircles(centerOfAnnotation, radiulOfCircles,'Color',circleLineColor,'EnhanceVisibility',false,'LineStyle','-','LineWidth',1);
-end
-
-% text(x_base,y_base,erase(dir('*.txt').name,'.txt'),'Color','white','FontSize',20);
-saveas(gcf,strcat('xyz','.png'));
-
+%% %%%%%%%  以上、図示しないなら不要 %%%%%%%
 
 %% タイムテーブルに代入
 % t1 = Mx{1,3};
