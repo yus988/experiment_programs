@@ -9,13 +9,10 @@ RMS_Cell = cell(1,1);% 各エリアごとのRMSをx,y,z,sumでインポートす
 Mean_Cell = cell(1,1);% RMS_cell から各エリアごとの平均取得
 Std_Cell = cell(1,1);% RMS_cell から各エリアごとの標準誤差取得
 
-
-
 cd_times = 1; % ディレクトリを動いた回数
 arrMeanStd = zeros(1,2); % spreadsheetに張り付ける用の、mean,stdをまとめた行列。
 subjectNum = 6; % 被験者数。何回ループさせるか。
 areaNum = 3; % FRONT SIDE BACK
-
 
 %% それぞれの area mean std を求める
 for areaItr = 1:areaNum
@@ -146,19 +143,18 @@ end
         i = i + size(c_Annotation{m,1},1);
     end
 %     
-%     Annotation = zeros(num_points, 3); %c_AnnotationのFloat行列, [マーカーのx座標, y座用, 加速度の大きさr]
-%     %viscirclesを使うため、重心と円半径をそれぞれ別の行列に代入
-%     i = 0; %　c_Annotationの数だけ参照行をシフトさせるため
-%     for m = 1:size(c_Annotation,1)
-%         for k = 1: size(c_Annotation{m,1},1)
-%             Annotation(k+i, 1) = c_Annotation{m,1}(k, 1);
-%             Annotation(k+i, 2) = c_Annotation{m,1}(k, 2);
-%             Annotation(k+i, 3) = Mx{k+i, target_row}*radius_coef;
-%         end
-%         i = i + size(c_Annotation{m,1},1);
-%     end
+    Annotation = zeros(num_points, 3); %c_AnnotationのFloat行列, [マーカーのx座標, y座用, 加速度の大きさr]
+    %viscirclesを使うため、重心と円半径をそれぞれ別の行列に代入
+    i = 0; %　c_Annotationの数だけ参照行をシフトさせるため
+    for m = 1:size(c_Annotation,1)
+        for k = 1: size(c_Annotation{m,1},1)
+            Annotation(k+i, 1) = c_Annotation{m,1}(k, 1);
+            Annotation(k+i, 2) = c_Annotation{m,1}(k, 2);
+        end
+        i = i + size(c_Annotation{m,1},1);
+    end
     
-    save; %save .mat file
+save; %save .mat file
 
 
 % 分類するフォルダの作成
@@ -188,11 +184,11 @@ tmpStd = zeros(pointsNum,1);
 
 txtPosX = 20; txtPosY = 30;  posOffset = 15;%改行量
 labels = zeros(pointsNum,1);
-radius_coef = 12  / 9.80665;%描画のため加速度(g)に掛け合わせる係数
+radius_coef = 20  / 9.80665;%描画のため加速度(g)に掛け合わせる係数
 annotationTextFontSize = 18; %図内注釈の文字の大きさ
 
-for i = 1:5 % 信号の種類ごと
-% for i = 2:2 % 信号の種類ごと
+% for i = 1:5 % 信号の種類ごと
+for i = 2:2 % 20Hz-1W
 
     if i == 1 
         type = '20Hz-0W';
@@ -228,7 +224,7 @@ for i = 1:5 % 信号の種類ごと
        
         imshow(Underlayer_img,'Border','tight') ;
         stdLineColor = circleLineColor; % 標準偏差の線の色
-        text(txtPosX,txtPosY,title,'Color',circleLineColor,'FontSize', annotationTextFontSize);
+%         text(txtPosX,txtPosY,title,'Color',circleLineColor,'FontSize', annotationTextFontSize);
 
         % 描画用の行列に値を格納
         for k = 1:pointsNum
@@ -244,43 +240,42 @@ for i = 1:5 % 信号の種類ごと
             end
             tmpMeans(k,1) = Mean_Cell{i,areaType}(dataIndex,j);
             tmpStd(k,1) = Std_Cell{i,areaType}(dataIndex,j);
-        
-               circleMeans = tmpMeans(k,1) * radius_coef;     
-            
+       
+%%%%%%%%%%%%%%%% %標準偏差の表示
+            circleMeans = tmpMeans(k,1) * radius_coef;     
+            lineWidth = 1.5 +  tmpStd(k,1) * 3; % 標準偏差の範囲になるように調整する
+            circleLineColor = '[1 0 0 0.2]'; % 灰色
+            % RMSの値に沿った円を描画
+            viscircles(centerOfAnnotation(k,:), circleMeans,'EnhanceVisibility',false, ...
+            'Color',circleLineColor,'LineStyle','-','LineWidth',lineWidth);   
 
-            
-        %標準偏差の表示
-        lineWidth = 1 +  tmpStd(k,1) * 1.7;
-        circleLineColor = '[1 0 0 0.2]'; % 灰色
-        % RMSの値に沿った円を描画
-        viscircles(centerOfAnnotation(k,:), circleMeans,'EnhanceVisibility',false, ...
-        'Color',circleLineColor,'LineStyle','-','LineWidth',lineWidth);   
-    
-        circleLineColor = '#ff0000'; % 赤    
-        lineWidth = 1.5;
-        % RMSの値に沿った円を描画
-        viscircles(centerOfAnnotation(k,:), circleMeans,'EnhanceVisibility',false, ...
-        'Color',circleLineColor,'LineStyle','-','LineWidth',lineWidth);   
+            circleLineColor = '#ff0000'; % 赤    
+            lineWidth = 1.5; 
+            % RMSの値に沿った円を描画
+            viscircles(centerOfAnnotation(k,:), circleMeans,'EnhanceVisibility',false, ...
+            'Color',circleLineColor,'LineStyle','-','LineWidth',lineWidth);   
         end
-        
+   
+        % RMSの値に沿った円を描画（中心の線）
 %         circleMeans = tmpMeans * radius_coef;
-%         % RMSの値に沿った円を描画
 %         viscircles(centerOfAnnotation, circleMeans,'EnhanceVisibility',false,'Color',circleLineColor,'LineStyle','-','LineWidth',1);   
-
-        % RMSの値を示すテキストを追加
+        
+%%%%%%%%%%%%%%%%   標準偏差の円の大きさ確認用
+%        % RMSの値を示すテキストを追加
 %         text(Annotation(:,1), Annotation(:,2)+posOffset, num2str(round(tmpMeans,3)),'Color','blue','FontSize', annotationTextFontSize);
-
-        % 標準偏差の図示
+% 
+%        % 標準偏差の図示
 %         tmpMeanPlueStd = tmpMeans + tmpStd;
 %         viscircles(centerOfAnnotation, tmpMeanPlueStd * radius_coef ,'EnhanceVisibility',false,'Color',	stdLineColor,'LineStyle',':','LineWidth',1);   
 %         tmpMeanMinusStd = tmpMeans - tmpStd;
 %         errorIndex = find(tmpMeanMinusStd < 0); % 負の値があるとviscirclesがエラーになるので、負の値を0にする
 %         tmpMeanMinusStd(errorIndex, 1) = 0;
 %         viscircles(centerOfAnnotation, tmpMeanMinusStd * radius_coef ,'EnhanceVisibility',false,'Color',stdLineColor,'LineStyle',':','LineWidth',1);   
-
-        % 標準偏差の値を示すテキストを追加
+% 
+%      % 標準偏差の値を示すテキストを追加
 %         text(Annotation(:,1) -10, Annotation(:,2) + posOffset*1.8 ,strcat('±',num2str(round(tmpStd,3))),'Color','blue','FontSize',annotationTextFontSize);
-        
+%%%%%%%%%%%%%%%%
+
         % 画像保存
         cd (axis)
         saveas(gcf,strcat(title,'.png'));
@@ -334,6 +329,24 @@ end
 saveas(gcf,strcat('1ampMeanDiff','.png'));
 % close
 
+
+%% 基準円の大きさ表示用
+figure;
+close all
+base_x = 30;
+base_y = 100;
+pos_offset = 100;
+ecolor = 'black';
+lineWidth = 2;
+imshow(Underlayer_img);
+% 基準の m/s
+v1 = 1;
+v2 = 10;
+v3 = 20;
+viscircles([base_x  base_y], v1 * radius_coef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
+viscircles([base_x + pos_offset * 0.75 base_y ], v2 * radius_coef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
+viscircles([base_x + pos_offset * 2  base_y ], v3 * radius_coef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
+saveas(gcf,strcat('baseCircle','.png'));
 
 
 

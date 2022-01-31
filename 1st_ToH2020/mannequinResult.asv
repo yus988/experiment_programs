@@ -131,9 +131,8 @@ end
 %% ƒOƒ‰ƒt•`‰æ
 
 close all
-width =1280;
-height = 720;
-figure('Position',[10 10 width height]);
+width =480;
+height = 540;
 
 for i = 1:5
     tmp = sortrows(cellPlot{i,1});
@@ -159,9 +158,7 @@ for i = 1:5
         lineStyle = '-';
     end
     marker = 'o';
-%    errorbar(tmp(:,1),tmp(:,2),tmp(:,3),'Color',lineColor,'LineStyle',lineStyle, ...
-%         'Marker',marker,'MarkerSize',4,'MarkerFaceColor',lineColor);
-    plot(tmp(:,1),tmp(:,2),'Color',lineColor,'LineStyle',lineStyle, ...
+    plot(tmp(:,1),tmp(:,2),tmp(:,3),'Color',lineColor,'LineStyle',lineStyle, ...
         'Marker',marker,'MarkerSize',4,'MarkerFaceColor',lineColor);
     hold on
 end
