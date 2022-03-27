@@ -3,9 +3,12 @@
 freq = [1; 1.2; 1.5; 1.8; 2.2; 2.7;3.3;3.9;4.7;5.6;6.8;8.2;
     10; 12;15;18;22;27;33;39;47;56;68;82;
     100; 120;150;180;220;270;330;390;470;560;680;820;1000]; %周波数配列
-lpfFreq=[100; 120;150;180;220;270;330;390;470;560;680;820;1000];
+lpfFreq=[82; 100; 120;150;180;220;270;330;390;470;560;680;820;1000];
 graphArr = zeros(numFiles,3);
 Mx = cell(numFiles,2);% インポート用のセル
+% LT = 60; 
+LB=38; % 暗騒音
+% K = -10*log10(1-10^(-(LT-LB)/10))
 
 for k = 0:1
     if k == 1
@@ -21,16 +24,20 @@ for k = 0:1
         del = sz-20; %消す範囲
         tmp(1:del,:) = []; %初めの方のデータを削除
         Mx{i,4*k+1} = tmp;
-        Mx{i,4*k+2} = freq(i,1);
         if k == 0
+                        Mx{i,4*k+2} = freq(i,1);
             graphArr(i,3*k+1) =  freq(i,1);
         else
+                Mx{i,4*k+2} = lpfFreq(i,1);
             graphArr(i,3*k+1) =  lpfFreq(i,1);
         end
         
         Mx{i,4*k+3} = mean(tmp(:,2));
-        graphArr(i,3*k+2) =  mean(tmp(:,2));
-        Mx{i,4*k+4} = max(tmp(:,2));
+        LT = mean(tmp(:,2)); 
+        Mx{i,4*k+4} = LT +10*log10(1-10^(-(LT-LB)/10));
+        graphArr(i,3*k+2) =  Mx{i,4*k+4}; % 暗騒音補正有り
+%         graphArr(i,3*k+2) =  Mx{i,4*k+3}; % 暗騒音補正無し
+        Mx{i,4*k+5} = max(tmp(:,2));
         graphArr(i,3*k+3) =   max(tmp(:,2));
     end
     
@@ -39,6 +46,10 @@ for k = 0:1
     end
 end
 
+% -10*log10(1-10^(-(LT-LB)/10))
+
+% LT = 60; LB=58;
+% K = -10*log10(1-10^(-(LT-LB)/10))
 
 %% グラフ描画
 
@@ -56,9 +67,9 @@ plot(graphArr(:,1), y1, 'Color',lineColor, ...
     'Marker', 'o','MarkerSize',4,'MarkerFaceColor',lineColor);
 
 % LPF有りプロット
-y3 = graphArr(:,2);
+y3 = graphArr(:,5);
 lineColor = 'blue';
-plot(graphArr(:,4), y1, 'Color',lineColor, ...
+plot(graphArr(:,4), y3, 'Color',lineColor, ...
     'Marker', 'o','MarkerSize',4,'MarkerFaceColor',lineColor);
 % plot(graphArr(:,1), y2, 'Color',lineColor, ...
 %     'Marker', 'o','MarkerSize',4,'MarkerFaceColor',lineColor);

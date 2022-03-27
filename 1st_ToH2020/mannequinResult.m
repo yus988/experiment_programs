@@ -8,8 +8,9 @@ Mx = cell(1,1);
 cellResult = cell(zeros(1));
 trialNum = 1; %試行回数
 % trialNum = 3;
+typeNum = 4;
 
-for cd_times = 1:5
+for cd_times = 1:typeNum
     %% フォルダの移動
     if cd_times == 1
         folderName = '1Hapbeat_Housing';
@@ -116,7 +117,7 @@ end % for cd_times = 1:6 の終わり
 cellPlot = cell(1,1); % freq mean std
 tmp = zeros(1,1);
 
-for posLoop = 1:5
+for posLoop = 1:typeNum
     for i = 1 : size(cellResult{posLoop,1},1)
         for exeLoop = 1:trialNum
             tmp(exeLoop,1) =  cellResult{posLoop,exeLoop}(i,2);
@@ -135,7 +136,7 @@ width =1280;
 height = 720;
 figure('Position',[10 10 width height]);
 
-for i = 1:5
+for i = 1:typeNum
     tmp = sortrows(cellPlot{i,1});
     if i == 1  %'Hapbeat enclosure';
         markerColor = 'red';
@@ -181,6 +182,7 @@ ax.XAxis.TickLength = [0.04 0.0];
 % hline = refline([0 10]);
 % xlim([0 300])
 xlim([0 1000])
+ax.YLim = [0.4 50];
 % ax.YLim = [0 11];
 % ax.YAxis.TickValues = [0:11];
 % ax.XAxis.TickValues = [1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800 900 1000];

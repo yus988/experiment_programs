@@ -1,6 +1,7 @@
 % 3軸のデータを主成分分析し、主成分軸の波形を求めるスクリプト
 % Tシャツ/2T_Side/ で実行
 close all
+maxLoops = 6;
 
 % 体脂肪率順
 folder1 = 'sub3';
@@ -10,6 +11,7 @@ folder4 = 'sub5';
 folder5 = 'sub1';
 folder6 = 'sub6';
 
+% for whole_times = 1:maxLoops
 for whole_times = 1:maxLoops
     if whole_times == 1
         cd (folder1);
@@ -30,8 +32,8 @@ for whole_times = 1:maxLoops
     load matlab.mat
 
     %%
-    i=4; % 側面中央
-%     i=3; % 背面中央
+%     i=4; % 側面中央
+    i=3; % 背面中央
     acc=Mx{i,2};
     acc(:,4)=[]; % 入力電圧の列を削除
     
@@ -100,6 +102,7 @@ end
 minTime = pks(I,1); % 抽出したピーク対のうち小さい方の時間
 maxTime = pks(pks(I,3),1);
 yExtr = y(minTime:maxTime,1);
+yExtr = yExtr(1:1000); % fft 0-0.1限定
 
 %グラフに必要な変数
 % L = 1e4;             % Length of signal
@@ -127,6 +130,7 @@ subplot(2,1,2)
 % y=Mx{1,2}(:,1); % 生の波形
 % Y=fft(y); % fft
 Y=fft(yExtr); % fft
+% Y=fft(yFFT); % fft 0-0.1限定
 
 P2 = abs(Y/L);
 P1 = P2(1:L/2+1);

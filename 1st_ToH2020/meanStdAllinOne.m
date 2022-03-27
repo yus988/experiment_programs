@@ -5,9 +5,9 @@
 
 clear
 close all
-RMS_Cell = cell(1,1);% 各エリアごとのRMSをx,y,z,sumでインポートするためのセル
-Mean_Cell = cell(1,1);% RMS_cell から各エリアごとの平均取得
-Std_Cell = cell(1,1);% RMS_cell から各エリアごとの標準誤差取得
+tmpRMS_Cell = cell(1,1);% tmp 各エリアごとのRMSをx,y,z,sumでインポートするためのセル
+Mean_Cell = cell(1,1);% tmpRMS_Cell から各エリアごとの平均取得
+Std_Cell = cell(1,1);% tmpRMS_Cell から各エリアごとの標準誤差取得
 
 cd_times = 1; % ディレクトリを動いた回数
 arrMeanStd = zeros(1,2); % spreadsheetに張り付ける用の、mean,stdをまとめた行列。
@@ -54,7 +54,7 @@ for areaItr = 1:areaNum
                 cd '140Hz_1W';
             end
             HumanPointsAccImport % 取り込み処理
-            RMS_Cell{cd_times, subItr} = RMS_column; %RMS値を格納
+            tmpRMS_Cell{cd_times, subItr} = RMS_column; %RMS値を格納
             cd ..
         end
         cd ..
@@ -62,12 +62,12 @@ for areaItr = 1:areaNum
     
     %% RMSから平均（Mean）を算出
     tmp = zeros(1,1);
-    for i = 1:size(RMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
-        for j=1:size(RMS_Cell{1,1},2) % 軸ごとのイテレート。x,y,z,sum
-            for k =1: size(RMS_Cell{1,1},1) % 測定箇所ごとのイテレート。
+    for i = 1:size(tmpRMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
+        for j=1:size(tmpRMS_Cell{1,1},2) % 軸ごとのイテレート。x,y,z,sum
+            for k =1: size(tmpRMS_Cell{1,1},1) % 測定箇所ごとのイテレート。
                 % matlabの関数を使うため、tmp行列に格納
                 for loop = 1 : subjectNum
-                    tmp(loop,1) = RMS_Cell{i,loop}(k,j);
+                    tmp(loop,1) = tmpRMS_Cell{i,loop}(k,j);
                 end
                 Mean_Cell{i,areaItr}(k,j) = mean(tmp);
             end
@@ -75,12 +75,12 @@ for areaItr = 1:areaNum
     end
     
     %% RMSから標準偏差（Std）を算出
-    for i = 1:size(RMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
-        for j=1:size(RMS_Cell{1,1},2) % 軸ごとのイテレート。x,y,z,sum
-            for k =1: size(RMS_Cell{1,1},1) % 測定箇所ごとのイテレート。
+    for i = 1:size(tmpRMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
+        for j=1:size(tmpRMS_Cell{1,1},2) % 軸ごとのイテレート。x,y,z,sum
+            for k =1: size(tmpRMS_Cell{1,1},1) % 測定箇所ごとのイテレート。
                 % matlabの関数を使うため、tmp行列に格納
                 for loop = 1 : subjectNum
-                    tmp(loop,1) = RMS_Cell{i,loop}(k,j);
+                    tmp(loop,1) = tmpRMS_Cell{i,loop}(k,j);
                 end
                 Std_Cell{i,areaItr}(k,j) = std(tmp);
             end
@@ -89,8 +89,8 @@ for areaItr = 1:areaNum
     
     %% spreadsheet貼り付け用にまとめる。ひとまずsumだけ
     row = 1;
-    for i = 1:size(RMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
-        for k =1: size(RMS_Cell{1,1},1) % 測定箇所ごとのイテレート。
+    for i = 1:size(tmpRMS_Cell,1) % 周波数ごとのイテレート。Mxのcell参照
+        for k =1: size(tmpRMS_Cell{1,1},1) % 測定箇所ごとのイテレート。
             % matlabの関数を使うため、tmp行列に格納
             arrMeanStd(row,2*areaItr-1) =  Mean_Cell{i,areaItr}(k,4);
             arrMeanStd(row,2*areaItr) =  Std_Cell{i,areaItr}(k,4);
