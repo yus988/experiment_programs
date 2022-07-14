@@ -1,8 +1,7 @@
-%% 定量実験処理用スクリプト
+%% 定量実験処理用スクリプト 2-2
 % アンプ測定の√で実行
 % -Hapbeat -1 -2 -3 
 % -Lepy -1 -2 -3
-
 
 clear
 Fs = 1e4;%サンプル周波数
@@ -84,7 +83,7 @@ end
 cd ..
     
 
-% Lepyの出力結果をインポート
+%% Lepyの出力結果をインポート
 cd Lepy
 for cdTimes = 1:3
     if cdTimes == 1
@@ -195,13 +194,13 @@ plotArr = arrHapRmsMeanStd;
 semilogx(plotArr(:,1), plotArr(:,2),'Marker',marker, 'LineStyle', lineStyle, ...
     'MarkerFaceColor', 'red','color','red');
 
-% lep mean
-plotArr = arrLepRmsMeanStd;
-hold on;
-semilogx(plotArr(:,1), plotArr(:,2),'Marker',marker, 'LineStyle', lineStyle, ...
-    'MarkerFaceColor', 'blue','color','blue');
-
-ylabel('Gain');
+% % lep mean
+% plotArr = arrLepRmsMeanStd;
+% hold on;
+% semilogx(plotArr(:,1), plotArr(:,2),'Marker',marker, 'LineStyle', lineStyle, ...
+%     'MarkerFaceColor', 'blue','color','blue');
+% 
+% ylabel('Gain');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 yyaxis right; % activate left y axis
@@ -216,12 +215,12 @@ lineColor = '#ffb6c1';
 semilogx(plotArr(:,1), plotArr(:,2),'Marker',marker,'LineStyle', lineStyle,...
     'MarkerFaceColor', lineColor,'color',lineColor);
 
-% lep thd
-hold on;
-plotArr = arrLepThdMeanStd;
-lineColor = '#87cefa';
-semilogx(plotArr(:,1), plotArr(:,2),'Marker',marker, 'LineStyle', lineStyle, ...
-    'MarkerFaceColor', lineColor,'color',lineColor);
+% % lep thd
+% hold on;
+% plotArr = arrLepThdMeanStd;
+% lineColor = '#87cefa';
+% semilogx(plotArr(:,1), plotArr(:,2),'Marker',marker, 'LineStyle', lineStyle, ...
+%     'MarkerFaceColor', lineColor,'color',lineColor);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % configure left axis

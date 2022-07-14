@@ -1,0 +1,57 @@
+close all; clear;
+
+list = dir('*.mp3');
+[data, Fs] = audioread(list(1).name);
+TT = timetable(data,'SampleRate',Fs);
+
+% パラメーター
+timeLimits = seconds([0 250]); % 秒
+frequencyLimits = [0 1000]; % Hz
+
+%%
+% 対象の信号時間領域へのインデックス
+TT_data_1_ROI = TT.data(:,1);
+timeValues = TT.Properties.RowTimes;
+TT_data_1_ROI = timetable(timeValues,TT_data_1_ROI,'VariableNames',{'Data'});
+TT_data_1_ROI = TT_data_1_ROI(timerange(timeLimits(1),timeLimits(2),'closed'),1);
+
+% スペクトル推定の計算
+% 以下の関数呼び出しを出力引数なしで実行して結果をプロットします
+[PTT_data_1_ROI, FTT_data_1_ROI] = pspectrum(TT_data_1_ROI, ...
+    'FrequencyLimits',frequencyLimits);
+
+%% 
+plot(FTT_data_1_ROI,pow2db(PTT_data_1_ROI))
+xlabel('Frequency (Hz)')
+ylabel('Power Spectrum (dB)')
+
+
+hold on
+
+% 2曲目
+[data, Fs] = audioread(list(2).name);
+TT = timetable(data,'SampleRate',Fs);
+TT_data_1_ROI = TT.data(:,1);
+timeValues = TT.Properties.RowTimes;
+TT_data_1_ROI = timetable(timeValues,TT_data_1_ROI,'VariableNames',{'Data'});
+TT_data_1_ROI = TT_data_1_ROI(timerange(timeLimits(1),timeLimits(2),'closed'),1);
+
+% スペクトル推定の計算
+% 以下の関数呼び出しを出力引数なしで実行して結果をプロットします
+[PTT_data_1_ROI, FTT_data_1_ROI] = pspectrum(TT_data_1_ROI, ...
+    'FrequencyLimits',frequencyLimits);
+
+plot(FTT_data_1_ROI,pow2db(PTT_data_1_ROI))
+
+legend('Lisztomania','Countdown')
+
+% set(gca,'xscale','log')
+% ax = gca;
+% ax.XAxisLocation = 'bottom';
+% ax.XAxis.TickDirection  = 'out';
+% ax.XAxis.TickLength = [0.05 0.0];
+% ax.FontSize = labelFont;
+% grid on 
+
+
+% pspectrum(TT_data_1_ROI, 'FrequencyLimits',frequencyLimits)

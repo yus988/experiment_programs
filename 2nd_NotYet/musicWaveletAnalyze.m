@@ -3,7 +3,11 @@
 % サブプロット https://jp.mathworks.com/help/wavelet/ref/cwt.html
 close all;
 
-fs = 44100; % wavのサンプル周波数
+list = dir('*.mp3');
+[data, Fs] = audioread(list(1).name);
+
+%% 
+% fs = 44100; % wavのサンプル周波数
 fr = 2000; % 変更するサンプリングレート
 x = data(:,1);
 [P,Q] = rat(fr/Fs);
