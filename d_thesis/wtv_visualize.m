@@ -38,7 +38,7 @@ for row = 1:9
             tmp(k,1) = Mx{k,1}(row,col);
         end
         rmsArr(row,col) = mean(tmp);
-        stdArr(row,col) = mean(tmp);
+        stdArr(row,col) = std(tmp);
     end
 end
 
@@ -97,17 +97,18 @@ close all
 
 circleLineColor = 'r';
 radiusCoef =5;
+baseLineWidth = 0.5;
 
-% for freq = 1:2  % 1=30Hz, 2=150Hz
-for freq = 1:1  % 1=30Hz, 2=150Hz
+for freq = 1:2  % 1=30Hz, 2=150Hz
+% for freq = 1:1  % 1=30Hz, 2=150Hz
 
     if freq ==1
         ftxt = '30_Hz';
     else
         ftxt = '150_Hz';
     end
-%     for i=1:4
-    for i=1:1
+    for i=1:4
+%     for i=1:1
         if i ==1
             nm = 'wtvFront';
             annorow = 1:18;
@@ -149,33 +150,45 @@ for freq = 1:1  % 1=30Hz, 2=150Hz
         end
         Underlayer_img = imread(strcat('./underlayer/', nm, '.png'));
 
-%         figure('Name',ftxt, 'Units', 'centimeters', 'Position', [0 -40 width 5.05]);
-        figure('Name',ftxt, 'Units', 'centimeters', 'Position', [0 -40 width 5.05 ]);
+%      figure('Name',ftxt, 'Units', 'centimeters', 'Position', [0 -40 width 5.05]);
+        figure('Name',ftxt, 'Units', 'centimeters', 'Position', [0 -200 width 5.05 ]);
 
         imshow(Underlayer_img,'Border','tight');
 
         % viscircle 用の配列を作る。
-
+        circleLineColor = 'r';
         centerOfAnnotation = Annotation(annorow,:);
         tmpMean(:,1) =  [rmsArr(:,chest); rmsArr(:,abdo)];
-        tmpStd(:,1) = [rmsStd(:,chest); rmsStd(:,abdo)];
+        tmpStd(:,1) = [stdArr(:,chest); stdArr(:,abdo)];
         radiulOfCircles(:,1) = tmpMean * radiusCoef;
         viscircles(centerOfAnnotation, radiulOfCircles,'Color',circleLineColor, ...
-            'EnhanceVisibility',false,'LineStyle','-','LineWidth',1);
+            'EnhanceVisibility',false,'LineStyle','-','LineWidth',baseLineWidth);
 
+        %%%%%%%%%%%%%%%% %標準偏差の表示
+        for k=1:size(tmpStd,1)
+            lineWidth = baseLineWidth +  tmpStd(k,1) * 2; % 標準偏差の範囲になるように調整する
+            circleLineColor = '[1 1 0]'; % 灰色
+            % RMSの値に沿った円を描画
+            viscircles(centerOfAnnotation(k,:), radiulOfCircles(k,1),'EnhanceVisibility',false, ...
+            'Color',circleLineColor,'LineStyle','-','LineWidth',lineWidth);   
+        end
 
 %%%%%%%%%%%%%%%   標準偏差の円の大きさ確認用
      % RMSの値を示すテキストを追加
-        text(centerOfAnnotation(:,1), centerOfAnnotation(:,2)+posOffset, ...
-            num2str(round(tmpMean,3)),'Color','blue','FontSize', '10');
-
+     posOffset = 15;
+     stdLineColor = 'b';
+%         text(centerOfAnnotation(:,1), centerOfAnnotation(:,2)+posOffset, ...
+%             tmpMean, 'Color','blue','FontSize', '10');
+% num2str(tmpMean,'%.2d')
       % 標準偏差の図示
         tmpMeanPlueStd = tmpMean + tmpStd;
-        viscircles(centerOfAnnotation, tmpMeanPlueStd * radius_coef ,'EnhanceVisibility',false,'Color',	stdLineColor,'LineStyle',':','LineWidth',1);   
+        viscircles(centerOfAnnotation, tmpMeanPlueStd * radiusCoef ,...
+            'EnhanceVisibility',false,'Color',	stdLineColor,'LineStyle',':','LineWidth',1);   
         tmpMeanMinusStd = tmpMean - tmpStd;
         errorIndex = find(tmpMeanMinusStd < 0); % 負の値があるとviscirclesがエラーになるので、負の値を0にする
         tmpMeanMinusStd(errorIndex, 1) = 0;
-        viscircles(centerOfAnnotation, tmpMeanMinusStd * radius_coef ,'EnhanceVisibility',false,'Color',stdLineColor,'LineStyle',':','LineWidth',1);   
+        viscircles(centerOfAnnotation, tmpMeanMinusStd * radiusCoef ,...
+            'EnhanceVisibility',false,'Color',stdLineColor,'LineStyle',':','LineWidth',1);   
 
      % 標準偏差の値を示すテキストを追加
 %         text(Annotation(:,1) -10, Annotation(:,2) + posOffset*1.8 ,strcat('±',num2str(round(tmpStd,3))),'Color','blue','FontSize',annotationTextFontSize);
@@ -187,6 +200,30 @@ for freq = 1:1  % 1=30Hz, 2=150Hz
 %         saveas(gcf,strcat(ftxt,'_', nm,'.png'));
     end
 end
+
+close all
+
+%% 基準円の大きさ表示用
+figure;
+close all
+base_x = 30;
+base_y = 100;
+pos_offset = 100;
+ecolor = 'red';
+lineWidth = baseLineWidth;
+imshow(Underlayer_img,'Border','tight');
+% 基準の m/s
+v1 = 1;
+v2 = 4;
+v3 = 7;
+v4 = 10;
+viscircles([base_x  base_y], v1 * radiusCoef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
+viscircles([base_x + pos_offset * 0.75 base_y ], v2 * radiusCoef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
+viscircles([base_x + pos_offset * 2  base_y ], v3 * radiusCoef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
+viscircles([base_x + pos_offset * 2  base_y ], v4 * radiusCoef, 'Color',ecolor,'EnhanceVisibility',false,'LineWidth',lineWidth);
+
+print('circle','-depsc');
+
 
 
 % 列の説明
