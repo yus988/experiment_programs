@@ -145,8 +145,7 @@ if isfile('awake.txt')
     p = get(gcf,'Position');
     dw = p(3)-min(nw*p(3),maxW);
     dh = p(4)-min(nh*p(4),maxH);
-    set(gcf,'Position',[p(1)+dw/2  p(2)+dh  min(nw*p(3),maxW)  min(nh*p(4),maxH)])
-    hold off
+    set(gcf,'Position',[p(1)+dw/2 
     % 160Hz‚ÌƒOƒ‰ƒt
     f2 = figure;
     hold on 
