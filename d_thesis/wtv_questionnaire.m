@@ -2,11 +2,15 @@ close all;clear;
 % 1--8 jazz, 9--16 piano
 % wtv hapt, wtv hapt, ...
 
+% 行＝参加者No.（行1＝一人目、行2＝二人目…）
+% 生の回答値
 raw = readmatrix('raw.csv');
+% 差分データ
 diff = readmatrix('diff.csv');
 
 %% 全体差分 wtv-hapt
-figure('Position',[0 -700 720 480])
+% figureウィンドウを任意の場所に表示[xpos, ypos, width, height],左上が零点
+figure('Position',[0 0 720 480])
 data = diff;
 hold on
 xl = repmat(1:size(data,2),size(data,1),1);
