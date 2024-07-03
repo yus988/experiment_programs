@@ -8,10 +8,23 @@ raw = readmatrix('raw.csv');
 % 差分データ
 diff = readmatrix('diff.csv');
 
+% Jazz - Piano 比較用
+trackDiff = zeros(10,8);
+for i =1:8
+    for subj = 1:10
+        trackDiff(subj,i) = raw(subj,i) - raw(subj,i+8);
+    end
+end
 %% 全体差分 wtv-hapt
+<<<<<<< Updated upstream
 % figureウィンドウを任意の場所に表示[xpos, ypos, width, height],左上が零点
 figure('Position',[0 0 720 480])
 data = diff;
+=======
+figure('Position',[0 -700 720 480])
+% data = diff;
+data  = trackDiff;
+>>>>>>> Stashed changes
 hold on
 xl = repmat(1:size(data,2),size(data,1),1);
 dotSize = .8;
@@ -80,33 +93,41 @@ ax.FontName = 'tahoma';
 ylim([-5 5])
 box off
 hold off
+%%  raw t検定
+data = raw;
+for i = 1:size(data,2)/2 % Q1--Q6
+     [pVal(1,i), pVal(2,i)] = signrank(data(:,2*i-1));
+end
+
+[pVal(3,:), pVal(4,:)] = bonf_holm(pVal(1,:),0.05);
+
+for i = 1:size(data,2) % Q1--Q6
+     [rawpVal(1,i), rawpVal(2,i)] = signrank(data(:,i));
+end
+
+
 
 %% t検定
-
-
 close all
 % test1に判定したい列を入れればOK
-% test1 = exp1_ansDif(:,1);
-test1 = diff;
+% test1 = diff;
 
-for k= 1:size(test1,2)
-        [h,p] = kstest(test1(:,k));
-         isNorm(k,1) = h;
-         isNorm(k,2) = p;
+data = trackDiff;
+for k= 1:size(data,2)
+        [h,p] = kstest(data(:,k));
+         pVal(k,1) = h;
+         pVal(k,2) = p;
 end
 
 % [h,p] = kstest(ans)
 % 
-
-
 % muiscとhapで差があったかを検定
 % ウィルコクソンの符号順位検定 対応のある比較
 % https://jp.mathworks.com/help/stats/signrank.html#bti40ke-8
 % 1=全体, 2=musicA, 3=musicB, 4=mz->hap, 5=hap->mz 
-data = diff;
 for i = 1:size(data,2) % Q1--Q6
-     [rpVal(i,1), rpVal(i,2)] = signrank(data(:,i))
-    [pVal(i,1), pVal(i,2)] = ttest(data(:,i))
+     [pVal(i,3), pVal(i,4)] = ttest(data(:,i));
+     [pVal(i,6), pVal(i,5)] = signrank(data(:,i));
 end
 
 

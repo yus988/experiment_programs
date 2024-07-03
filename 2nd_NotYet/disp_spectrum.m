@@ -1,9 +1,16 @@
 %% import files
+clear; clc; close all;
 
-[a_inst, Fs] = audioread("1_Lisztomania_Inst_-14lufs.mp3",'native');
-[a_vox, Fs] =  audioread("1_Lisztomania_Vox_-14lufs.mp3",'native');
-[b_inst, Fs] = audioread("7_Countdown_Inst_-14lufs.mp3",'native');
-[b_vox, Fs] =  audioread("7_Countdown_Vox_-14lufs.mp3",'native');
+% [a_inst, Fs] = audioread("1_Lisztomania_Inst_-14lufs.mp3",'native');
+% [a_vox, Fs] =  audioread("1_Lisztomania_Vox_-14lufs.mp3",'native');
+% [b_inst, Fs] = audioread("7_Countdown_Inst_-14lufs.mp3",'native');
+% [b_vox, Fs] =  audioread("7_Countdown_Vox_-14lufs.mp3",'native');
+
+[a_inst, Fs] = audioread("Nite_Club_30sec.mp3",'native');
+[a_vox, Fs] =  audioread("Nite_Club_30sec.mp3",'native');
+[b_inst, Fs] = audioread("Fantaisie_Impromptu_30sec.mp3",'native');
+[b_vox, Fs] =  audioread("Fantaisie_Impromptu_30sec.mp3",'native');
+
 
 TT_a_vox = timetable(a_vox, 'SampleRate', Fs);
 TT_a_inst = timetable(a_inst, 'SampleRate', Fs);
@@ -15,6 +22,8 @@ save;
 
 %% グラフ描画
 close all;
+
+
 figure;
 subplot(2,1,1);
 % t = TT_a_vox.Time;
@@ -79,23 +88,23 @@ for i=1:2
     % t = TT_a_vox.Time;
     % y = TT_a_vox.a_vox(:,1);
 
-%     % track-A
-%     if i ==1
-%         t = TT_a_vox.Time;
-%         x = TT_a_vox.a_vox(:,1);
-%     else
-%         t = TT_a_inst.Time;
-%         x = TT_a_inst.a_inst(:,1);
-%     end
-
-%     track-B
+    % track-A
     if i ==1
-        t = TT_b_vox.Time;
-        x = TT_b_vox.b_vox(:,1);
+        t = TT_a_vox.Time;
+        x = TT_a_vox.a_vox(:,1);
     else
-        t = TT_b_inst.Time;
-        x = TT_b_inst.b_inst(:,1);
+        t = TT_a_inst.Time;
+        x = TT_a_inst.a_inst(:,1);
     end
+
+%     % track-B
+%     if i ==1
+%         t = TT_b_vox.Time;
+%         x = TT_b_vox.b_vox(:,1);
+%     else
+%         t = TT_b_inst.Time;
+%         x = TT_b_inst.b_inst(:,1);
+%     end
 
     plot(t, x);
     xlim([t(1,1) t(size(t,1),1)])
