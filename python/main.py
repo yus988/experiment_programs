@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.fft import fft, fftfreq
 import os
+import matplotlib.pyplot as plt
 
 def calculate_peak_frequency(ch4_data, samples=10000):
     # pandas Series を numpy 配列に変換
@@ -75,6 +76,23 @@ def process_csv_files(directory):
 
     return results_array
 
+def plot_results(results_array):
+    # 周波数と RMS 値を抽出
+    frequencies = results_array[:, 0]
+    rms_values = results_array[:, 1]
+    
+    # グラフを作成
+    plt.figure(figsize=(10, 6))
+    plt.loglog(frequencies, rms_values, 'bo', markersize=5)  # 'bo' は青色の丸
+    plt.title('Frequency vs RMS Value')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('RMS Value (m/s^2)')
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    
+    # SVG形式で保存
+    plt.savefig('frequency_vs_rms.svg', format='svg')
+    plt.show()
+
 def main():
     # ディレクトリのパス
     directory = 'acc_data'  # 適宜ディレクトリパスを調整してください
@@ -82,9 +100,8 @@ def main():
     # CSVファイルを処理して結果を取得
     results_array = process_csv_files(directory)
     
-    # 結果を出力
-    print("Results (Frequency and RMS values):")
-    print(results_array)
+    # 結果をプロット
+    plot_results(results_array)
 
 if __name__ == "__main__":
     main()
