@@ -4,7 +4,7 @@ from scipy.fft import fft, fftfreq
 import os
 import matplotlib.pyplot as plt
 
-def calculate_peak_frequency(ch4_data, samples=10000):
+def calculate_peak_frequency(ch4_data, samples):
     ch4_data = ch4_data.to_numpy()
     N = len(ch4_data)
     yf = fft(ch4_data)
@@ -27,7 +27,7 @@ def calculate_rms(x_data, y_data, z_data, V2G=0.206):
     rms = np.sqrt((1/n) * np.sum((x_m_s2 - x_m_s2.mean())**2 + (y_m_s2 - y_m_s2.mean())**2 + (z_m_s2 - z_m_s2.mean())**2))
     return rms
 
-def process_csv_files(directory):
+def process_csv_files(directory, samples):
     csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
     results = []
     for file_name in csv_files:
@@ -37,19 +37,19 @@ def process_csv_files(directory):
         x_data = df.iloc[1:, 1].astype(float)
         y_data = df.iloc[1:, 2].astype(float)
         z_data = df.iloc[1:, 3].astype(float)
-        peak_freq = calculate_peak_frequency(ch4_data)
+        peak_freq = calculate_peak_frequency(ch4_data, samples)
         rms = calculate_rms(x_data, y_data, z_data, V2G=0.100)
         results.append([peak_freq, rms])
     results_array = np.array(results)
-    results_array = results_array[results_array[:, 0].argsort()]  # 周波数でソート
     return results_array
 
 def plot_results(all_results):
     plt.figure(figsize=(10, 6))
     for directory, results_array in all_results.items():
+        results_array = results_array[results_array[:, 0].argsort()]
         frequencies = results_array[:, 0]
         rms_values = results_array[:, 1]
-        plt.loglog(frequencies, rms_values, marker='o', label=directory)  # 点と直線でプロット
+        plt.loglog(frequencies, rms_values, marker='o', linestyle='-', label=directory)
     plt.title('Frequency vs RMS Value')
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('RMS Value (m/s^2)')
@@ -66,8 +66,16 @@ def main():
     for sub_dir in os.listdir(parent_directory):
         sub_dir_path = os.path.join(parent_directory, sub_dir)
         if os.path.isdir(sub_dir_path):
-            results_array = process_csv_files(sub_dir_path)
-            all_results[sub_dir] = results_array
+            results = []
+            for nested_dir in os.listdir(sub_dir_path):
+                nested_dir_path = os.path.join(sub_dir_path, nested_dir)
+                if os.path.isdir(nested_dir_path) and nested_dir == '1e3':
+                    results_array = process_csv_files(nested_dir_path, samples=1000)
+                    results.extend(results_array)
+                elif nested_dir.endswith('.csv'):
+                    results_array = process_csv_files(sub_dir_path, samples=10000)
+                    results.extend(results_array)
+            all_results[sub_dir] = np.array(results)
     plot_results(all_results)
 
 if __name__ == "__main__":
