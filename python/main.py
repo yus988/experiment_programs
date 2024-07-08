@@ -76,32 +76,44 @@ def process_csv_files(directory):
 
     return results_array
 
-def plot_results(results_array):
-    # 周波数と RMS 値を抽出
-    frequencies = results_array[:, 0]
-    rms_values = results_array[:, 1]
-    
-    # グラフを作成
+def plot_results(all_results):
     plt.figure(figsize=(10, 6))
-    plt.loglog(frequencies, rms_values, 'bo', markersize=5)  # 'bo' は青色の丸
+
+    for directory, results_array in all_results.items():
+        # 周波数と RMS 値を抽出
+        frequencies = results_array[:, 0]
+        rms_values = results_array[:, 1]
+
+        # グラフを作成
+        plt.loglog(frequencies, rms_values, label=directory)  # 直線で補間するためにプロット
+        
     plt.title('Frequency vs RMS Value')
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('RMS Value (m/s^2)')
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    plt.legend()
     
     # SVG形式で保存
-    plt.savefig('frequency_vs_rms.svg', format='svg')
+    output_directory = './out'
+    os.makedirs(output_directory, exist_ok=True)
+    plt.savefig(os.path.join(output_directory, 'frequency_vs_rms.svg'), format='svg')
     plt.show()
 
 def main():
-    # ディレクトリのパス
-    directory = 'acc_data'  # 適宜ディレクトリパスを調整してください
+    # 親ディレクトリのパス
+    parent_directory = 'acc_data'  # 適宜ディレクトリパスを調整してください
     
-    # CSVファイルを処理して結果を取得
-    results_array = process_csv_files(directory)
+    # 各サブディレクトリごとに処理を行う
+    all_results = {}
+    
+    for sub_dir in os.listdir(parent_directory):
+        sub_dir_path = os.path.join(parent_directory, sub_dir)
+        if os.path.isdir(sub_dir_path):
+            results_array = process_csv_files(sub_dir_path)
+            all_results[sub_dir] = results_array
     
     # 結果をプロット
-    plot_results(results_array)
+    plot_results(all_results)
 
 if __name__ == "__main__":
     main()
