@@ -1,64 +1,90 @@
-# csvファイルから加速度のRMS値を計算し、グラブを描画
-# グラフは横軸周波数、縦軸 m/s^2、ドットと直線
 import pandas as pd
 import numpy as np
 from scipy.fft import fft, fftfreq
 import os
 
-# CSVファイルのパス
-file_path = 'acc_data/tek0029.csv'  # 適宜ファイルパスを調整してください
+def calculate_peak_frequency(ch4_data, samples=10000):
+    # pandas Series を numpy 配列に変換
+    ch4_data = ch4_data.to_numpy()
+    
+    # FFTを計算
+    N = len(ch4_data)
+    yf = fft(ch4_data)
+    xf = fftfreq(N, 1 / samples)
 
-# CSVファイルの読み込み（ヘッダー行をスキップ）
-df = pd.read_csv(file_path, header=None, skiprows=20)
+    # 周波数のピークを検出
+    peak_freq = xf[np.argmax(np.abs(yf))]
 
-# ch4のデータを抽出する
-ch4_data = df.iloc[1:, 4].astype(float)  # ch4のデータ（E列）
+    return peak_freq
 
-samples = 10000 
-# Numpy配列に変換
-ch4_data = ch4_data.to_numpy()
+def calculate_rms(x_data, y_data, z_data, V2G=0.206):
+    # pandas Series を numpy 配列に変換
+    x_data = x_data.to_numpy()
+    y_data = y_data.to_numpy()
+    z_data = z_data.to_numpy()
 
-# FFTを計算
-N = len(ch4_data)
-yf = fft(ch4_data)
-xf = fftfreq(N, 1 / samples)
+    # 電圧値 -> Gに変換
+    x_g = (x_data - x_data.mean()) / V2G
+    y_g = (y_data - y_data.mean()) / V2G
+    z_g = (z_data - z_data.mean()) / V2G
 
-# 周波数のピークを検出
-peak_freq = xf[np.argmax(np.abs(yf))]
+    # G -> m/s^2に変換
+    g_to_m_s2 = 9.80665
+    x_m_s2 = x_g * g_to_m_s2
+    y_m_s2 = y_g * g_to_m_s2
+    z_m_s2 = z_g * g_to_m_s2
 
-print(f"Peak Frequency: {peak_freq} Hz")
+    # RMS値を計算する
+    n = len(x_m_s2)
+    rms = np.sqrt((1/n) * np.sum((x_m_s2 - x_m_s2.mean())**2 + (y_m_s2 - y_m_s2.mean())**2 + (z_m_s2 - z_m_s2.mean())**2))
 
+    return rms
 
+def process_csv_files(directory):
+    # ディレクトリ内の全CSVファイルを取得
+    csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
+    
+    # 結果を格納するリスト
+    results = []
+    
+    for file_name in csv_files:
+        file_path = os.path.join(directory, file_name)
+        
+        # CSVファイルの読み込み（ヘッダー行をスキップ）
+        df = pd.read_csv(file_path, header=None, skiprows=20)
+        
+        # ch4のデータを抽出する
+        ch4_data = df.iloc[1:, 4].astype(float)  # ch4のデータ（E列）
 
-# 電圧値 -> Gに変換
-# 0.206: MMA7361LC 1.5G MODE
-# 0.800: MMA7361LC 1.5G MODE
-# 0.1: ADXL354 8G MODE
-V2G = 0.100
+        # x, y, z（B, C, D列）のデータを抽出する
+        x_data = df.iloc[1:, 1].astype(float)  # B列
+        y_data = df.iloc[1:, 2].astype(float)  # C列
+        z_data = df.iloc[1:, 3].astype(float)  # D列
 
-# x, y, z（B, C, D列）のデータを抽出する
-x_data = df.iloc[1:, 1].astype(float)  # B列
-y_data = df.iloc[1:, 2].astype(float)  # C列
-z_data = df.iloc[1:, 3].astype(float)  # D列
-# print("x_data:", x_data.head())
+        # 周波数のピークを計算
+        peak_freq = calculate_peak_frequency(ch4_data)
+        
+        # 3軸のRMS値を計算
+        rms = calculate_rms(x_data, y_data, z_data, V2G=0.100)  # V2Gは適宜調整してください
 
-x_g = x_data / V2G
-y_g = y_data / V2G
-z_g = z_data / V2G
+        # 結果をリストに追加
+        results.append([peak_freq, rms])
+    
+    # リストを numpy 配列に変換
+    results_array = np.array(results)
 
-# G -> m/s^2に変換
-g_to_m_s2 = 9.80665
-x_m_s2 = x_g * g_to_m_s2
-y_m_s2 = y_g * g_to_m_s2
-z_m_s2 = z_g * g_to_m_s2
+    return results_array
 
-# 各軸の平均を計算
-mu_x = np.mean(x_m_s2)
-mu_y = np.mean(y_m_s2)
-mu_z = np.mean(z_m_s2)
+def main():
+    # ディレクトリのパス
+    directory = 'acc_data'  # 適宜ディレクトリパスを調整してください
+    
+    # CSVファイルを処理して結果を取得
+    results_array = process_csv_files(directory)
+    
+    # 結果を出力
+    print("Results (Frequency and RMS values):")
+    print(results_array)
 
-# RMS値を計算する
-n = len(x_m_s2)
-rms = np.sqrt((1/n) * np.sum((x_m_s2 - mu_x)**2 + (y_m_s2 - mu_y)**2 + (z_m_s2 - mu_z)**2))
-
-print(f"Average RMS Value: {rms:.4f} m/s^2")
+if __name__ == "__main__":
+    main()
