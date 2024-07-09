@@ -3,6 +3,7 @@ import numpy as np
 from scipy.fft import fft, fftfreq
 import os
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 def calculate_peak_frequency(ch4_data, samples):
     ch4_data = ch4_data.to_numpy()
@@ -57,7 +58,9 @@ def plot_results(all_results):
     plt.legend()
     output_directory = './out'
     os.makedirs(output_directory, exist_ok=True)
-    plt.savefig(os.path.join(output_directory, 'frequency_vs_rms.svg'), format='svg')
+    current_time = datetime.now().strftime("%H%M_%m%d_%Y")
+    file_name = f'frequency_vs_rms_{current_time}.svg'
+    plt.savefig(os.path.join(output_directory, file_name), format='svg')
     plt.show()
 
 def main():
