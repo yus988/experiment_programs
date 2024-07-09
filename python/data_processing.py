@@ -21,8 +21,8 @@ def calculate_rms(x_data, y_data, z_data, V2G=0.206):
     z_g = (z_data - z_data.mean()) / V2G
     g_to_m_s2 = 9.80665
     x_m_s2 = x_g * g_to_m_s2
-    y_m_s2 = y_g * g_to_m_s2
-    z_m_s2 = z_g * g_to_m_s2
+    y_m_s2 = x_g * g_to_m_s2
+    z_m_s2 = x_g * g_to_m_s2
     n = len(x_m_s2)
     rms = np.sqrt((1/n) * np.sum((x_m_s2 - x_m_s2.mean())**2 + (y_m_s2 - y_m_s2.mean())**2 + (z_m_s2 - z_m_s2.mean())**2))
     return rms
@@ -45,21 +45,25 @@ def process_csv_files(directory, samples):
 
 def process_all_data(parent_directory):
     all_results = {}
-    for sub_dir in os.listdir(parent_directory):
-        sub_dir_path = os.path.join(parent_directory, sub_dir)
-        if os.path.isdir(sub_dir_path):
-            results = []
-            for nested_dir in os.listdir(sub_dir_path):
-                nested_dir_path = os.path.join(sub_dir_path, nested_dir)
-                if os.path.isdir(nested_dir_path) and nested_dir == '1e3':
-                    results_array = process_csv_files(nested_dir_path, samples=1000)
-                    results.extend(results_array)
-                elif nested_dir.endswith('.csv'):
-                    results_array = process_csv_files(sub_dir_path, samples=10000)
-                    results.extend(results_array)
-            all_results[sub_dir] = np.array(results)
+    for title_directory in os.listdir(parent_directory):
+        title_dir_path = os.path.join(parent_directory, title_directory)
+        if os.path.isdir(title_dir_path):
+            all_results[title_directory] = {}
+            for sub_dir in os.listdir(title_dir_path):
+                sub_dir_path = os.path.join(title_dir_path, sub_dir)
+                if os.path.isdir(sub_dir_path):
+                    results = []
+                    for nested_dir in os.listdir(sub_dir_path):
+                        nested_dir_path = os.path.join(sub_dir_path, nested_dir)
+                        if os.path.isdir(nested_dir_path) and nested_dir == '1e3':
+                            results_array = process_csv_files(nested_dir_path, samples=1000)
+                            results.extend(results_array)
+                        elif nested_dir.endswith('.csv'):
+                            results_array = process_csv_files(sub_dir_path, samples=10000)
+                            results.extend(results_array)
+                    all_results[title_directory][sub_dir] = np.array(results)
     
-    output_file = os.path.join(parent_directory, 'processed_results.json')
+    output_file = os.path.join(title_dir_path, 'processed_results.json')
     with open(output_file, 'w') as f:
-        json.dump({k: v.tolist() for k, v in all_results.items()}, f)
+        json.dump({k: {sk: sv.tolist() for sk, sv in v.items()} for k, v in all_results.items()}, f)
     return all_results
